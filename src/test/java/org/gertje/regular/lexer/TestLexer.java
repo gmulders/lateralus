@@ -21,9 +21,9 @@ public class TestLexer {
 
 	private int[] alphabetMap;
 
-	public TestLexer(Reader reader, int[][] transitions, int[] alphabetMap, boolean[] isEndState,
+	public TestLexer(LexerReader reader, int[][] transitions, int[] alphabetMap, boolean[] isEndState,
 			TokenType[] tokenTypes, TokenType eofTokenType, int startState, int lexerState) {
-		this.reader = new LexerReaderImpl(reader);
+		this.reader = reader;
 		this.transitions = transitions;
 		this.isEndState = isEndState;
 		this.tokenTypes = tokenTypes;

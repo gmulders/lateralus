@@ -2,6 +2,7 @@ package org.gertje.regular.util;
 
 import org.gertje.regular.Automaton;
 import org.gertje.regular.LexerDefinition;
+import org.gertje.regular.lexer.LexerReaderImpl;
 import org.gertje.regular.lexer.TestLexer;
 import org.gertje.regular.lexer.TestTokenType;
 
@@ -60,7 +61,7 @@ public class TestLexerBuilder {
 		}
 
 
-		return new TestLexer(reader, table, alphabetMap, isEndState, testTokenTypes, new TestTokenType(0, -1),
+		return new TestLexer(new LexerReaderImpl(reader), table, alphabetMap, isEndState, testTokenTypes, new TestTokenType(0, -1),
 				lexerDefinition.getDfa().getStartState(), lexerDefinition.getLexerStartState() + 1);
 	}
 }
