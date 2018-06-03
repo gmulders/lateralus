@@ -107,10 +107,10 @@ public class LexerReaderImpl implements LexerReader {
 		// If the mark is higher then 0, we can shift the contents of the array towards 0.
 		if (mark > 0) {
 			System.arraycopy(buffer, mark, buffer, 0, endRead - mark);
-			mark = 0;
 			index -= mark;
 			end -= mark;
 			endRead -= mark;
+			mark = 0; // mark -= mark;
 
 			// Check if we have space for at least two chars now.
 			if (endRead <= buffer.length - 2) {
