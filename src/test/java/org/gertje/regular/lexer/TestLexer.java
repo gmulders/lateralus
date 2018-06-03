@@ -1,7 +1,6 @@
 package org.gertje.regular.lexer;
 
 import java.io.IOException;
-import java.io.Reader;
 
 public class TestLexer {
 
