@@ -10,9 +10,9 @@ public class TestLexer {
 
 	private final boolean[] isEndState;
 
-	private final TokenType[] tokenTypes;
+	private final TestTokenType[] tokenTypes;
 
-	private final TokenType eofTokenType;
+	private final TestTokenType eofTokenType;
 
 	private final int startState;
 
@@ -23,7 +23,7 @@ public class TestLexer {
 	private int errorState;
 
 	public TestLexer(LexerReader reader, int[][] transitions, int[] alphabetMap, boolean[] isEndState,
-			TokenType[] tokenTypes, TokenType eofTokenType, int startState, int lexerState, int errorState) {
+			TestTokenType[] tokenTypes, TestTokenType eofTokenType, int startState, int lexerState, int errorState) {
 		this.reader = reader;
 		this.transitions = transitions;
 		this.isEndState = isEndState;
@@ -81,7 +81,7 @@ public class TestLexer {
 		// - if we ended in an error state.
 
 		if (match) {
-			TokenType tokenType = tokenTypes[endState];
+			TestTokenType tokenType = tokenTypes[endState];
 			lexerState = tokenType.lexerState();
 			return new Token(lineNumber, columnNumber, reader.readLexeme(), tokenType);
 		} else if (t == -1) {
