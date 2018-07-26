@@ -262,4 +262,76 @@ public class SimpleTest {
 		assertEquals("", token.getValue());
 		assertEquals(0, token.getTokenType().ordinal());
 	}
+
+	@Test
+	public void testRegex7() throws RegExException, IOException, LexerException {
+		LexerDefinition lexerDefinition = createSimpleExpressionLexer();
+
+		String input = "<=>= ? 7..8 / 55\t _dd 'bla' + '\\t\\n' D'2017-06-21' && || % * / ! !=";
+
+		Reader reader = new StringReader(input);
+		TestLexer testLexer = new TestLexerBuilder(reader, lexerDefinition).build();
+
+		Token token = testLexer.determineNextToken();
+		while (!isType(token, "EOF")) {
+			token = testLexer.determineNextToken();
+		}
+	}
+
+	private LexerDefinition createSimpleExpressionLexer() throws RegExException {
+		return new LexerDefinitionBuilder()
+				.lexerStartStateName("DEFAULT")
+				.startLexerClass("DEFAULT")
+					.addLexerToken("WHITE_SPACE", "( |\\t)+", "DEFAULT")
+					.addLexerToken("END_OF_EXPRESSION", ";", "DEFAULT")
+					.addLexerToken("NEW_LINE", "\\r\\n|\\r|\\n", "DEFAULT")
+					.addLexerToken("DATE_START", "D'", "DATE")
+					.addLexerToken("IDENTIFIER", "([a-zA-Z_])[a-zA-Z0-9_]*", "DEFAULT")
+					.addLexerToken("LEFT_PARENTHESIS", "\\(", "DEFAULT")
+					.addLexerToken("RIGHT_PARENTHESIS", ")", "DEFAULT")
+					.addLexerToken("LEFT_BRACKET", "{", "DEFAULT")
+					.addLexerToken("RIGHT_BRACKET", "}", "DEFAULT")
+					.addLexerToken("STRING_START", "'", "STRING")
+					.addLexerToken("DECIMAL", "([0-9]+\\.[0-9]*)|([0-9]*\\.[0-9]+)", "DEFAULT")
+					.addLexerToken("INTEGER", "[0-9]+", "DEFAULT")
+					.addLexerToken("BOOLEAN", "true|false", "DEFAULT")
+					.addLexerToken("BOOLEAN_AND", "&&", "DEFAULT")
+					.addLexerToken("BOOLEAN_OR", "[|][|]", "DEFAULT")
+					.addLexerToken("PLUS", "+", "DEFAULT")
+					.addLexerToken("MINUS", "-", "DEFAULT")
+					.addLexerToken("POWER", "^", "DEFAULT")
+					.addLexerToken("MULTIPLY", "*", "DEFAULT")
+					.addLexerToken("DIVIDE", "/", "DEFAULT")
+					.addLexerToken("PERCENT", "%", "DEFAULT")
+					.addLexerToken("EQ", "==", "DEFAULT")
+					.addLexerToken("NEQ", "!=", "DEFAULT")
+					.addLexerToken("LEQ", "<=", "DEFAULT")
+					.addLexerToken("LT", "<", "DEFAULT")
+					.addLexerToken("GEQ", ">=", "DEFAULT")
+					.addLexerToken("GT", ">", "DEFAULT")
+					.addLexerToken("NOT", "!", "DEFAULT")
+					.addLexerToken("ASSIGNMENT", "=", "DEFAULT")
+					.addLexerToken("IF", "?", "DEFAULT")
+					.addLexerToken("COLON", ":", "DEFAULT")
+					.addLexerToken("COMMA", ",", "DEFAULT")
+				.end()
+				.startLexerClass("STRING")
+					.addLexerToken("STRING_PART", "[^'\\\\]*", "STRING")
+					.addLexerToken("STRING_END", "'", "DEFAULT")
+					.addLexerToken("STRING_SINGLE_QUOTE", "\\\\'", "STRING")
+					.addLexerToken("STRING_TAB", "\\\\t", "STRING")
+					.addLexerToken("STRING_NEW_LINE", "\\\\n", "STRING")
+					.addLexerToken("STRING_CARRIAGE_RETURN", "\\\\r", "STRING")
+					.addLexerToken("STRING_BACK_SLASH", "\\\\\\\\", "STRING")
+				.end()
+				.startLexerClass("DATE")
+					.addLexerToken("DATE_PART", "[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]", "DATE")
+					.addLexerToken("DATE_END", "'", "DEFAULT")
+				.end()
+				.build();
+	}
+
+	private boolean isType(Token token, String name) {
+		return token.getTokenType().getName().equals(name);
+	}
 }

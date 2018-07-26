@@ -20,8 +20,10 @@ public class TestLexer {
 
 	private int[] alphabetMap;
 
+	private int errorState;
+
 	public TestLexer(LexerReader reader, int[][] transitions, int[] alphabetMap, boolean[] isEndState,
-			TokenType[] tokenTypes, TokenType eofTokenType, int startState, int lexerState) {
+			TokenType[] tokenTypes, TokenType eofTokenType, int startState, int lexerState, int errorState) {
 		this.reader = reader;
 		this.transitions = transitions;
 		this.isEndState = isEndState;
@@ -30,6 +32,7 @@ public class TestLexer {
 		this.startState = startState;
 		this.alphabetMap = alphabetMap;
 		this.lexerState = lexerState;
+		this.errorState = errorState;
 	}
 
 	public Token determineNextToken() throws IOException, LexerException {
@@ -56,7 +59,7 @@ public class TestLexer {
 			state = transitions[state][alphabetMap[t]];
 
 			// If this is the error state we can stop this loop.
-			if (state == 0) {
+			if (state == errorState) {
 				break;
 			}
 
@@ -66,7 +69,6 @@ public class TestLexer {
 
 			if (isEndState[endState]) {
 				match = true;
-
 			}
 
 			// Remove the code point from the stack.

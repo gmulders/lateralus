@@ -10,8 +10,6 @@ import org.gertje.regular.parser.visitors.BuildLexerVisitor;
 import org.gertje.regular.parser.visitors.IntervalCollectorVisitor;
 
 import java.util.Arrays;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class Main {
 
@@ -19,19 +17,19 @@ public class Main {
 
 		// Parse the regular expression.
 //		AbstractRegExNode node = new RegExParser("ab?c+.|a(ab)*|[.][\\U0000-\\U000A][\\g\\\\\\t\\r\\n][^d-\\U0fff\\U00ff-^]").parse();
-//		AbstractRegExNode node = new RegExParser("ab+c").parse();
+		AbstractRegExNode node = new RegExParser("ab+c").parse();
 //		AbstractRegExNode node = new RegExParser("[a-a]|[a-b]").parse();
-		AbstractRegExNode node = new RegExParser(
-				"[\\U0000-\\U007f]" +
-				"|[\\U00c2-\\U00df][\\U0080-\\U00bf]" +
-				"|[\\U00e0-\\U00e0][\\U00a0-\\U00bf][\\U0080-\\U00bf]" +
-				"|[\\U00e1-\\U00ec][\\U0080-\\U00bf][\\U0080-\\U00bf]" +
-				"|[\\U00ed-\\U00ed][\\U0080-\\U009f][\\U0080-\\U00bf]" +
-				"|[\\U00ee-\\U00ef][\\U0080-\\U00bf][\\U0080-\\U00bf]" +
-				"|[\\U00f0-\\U00f0][\\U0090-\\U00bf][\\U0080-\\U00bf][\\U0080-\\U00bf]" +
-				"|[\\U00f1-\\U00f3][\\U0080-\\U00bf][\\U0080-\\U00bf][\\U0080-\\U00bf]" +
-				"|[\\U00f4-\\U00f4][\\U0080-\\U008f][\\U0080-\\U00bf][\\U0080-\\U00bf]" +
-				"").parse();
+//		AbstractRegExNode node = new RegExParser(
+//				"[\\U0000-\\U007f]" +
+//				"|[\\U00c2-\\U00df][\\U0080-\\U00bf]" +
+//				"|[\\U00e0-\\U00e0][\\U00a0-\\U00bf][\\U0080-\\U00bf]" +
+//				"|[\\U00e1-\\U00ec][\\U0080-\\U00bf][\\U0080-\\U00bf]" +
+//				"|[\\U00ed-\\U00ed][\\U0080-\\U009f][\\U0080-\\U00bf]" +
+//				"|[\\U00ee-\\U00ef][\\U0080-\\U00bf][\\U0080-\\U00bf]" +
+//				"|[\\U00f0-\\U00f0][\\U0090-\\U00bf][\\U0080-\\U00bf][\\U0080-\\U00bf]" +
+//				"|[\\U00f1-\\U00f3][\\U0080-\\U00bf][\\U0080-\\U00bf][\\U0080-\\U00bf]" +
+//				"|[\\U00f4-\\U00f4][\\U0080-\\U008f][\\U0080-\\U00bf][\\U0080-\\U00bf]" +
+//				"").parse();
 
 //		AbstractRegExNode node = new RegExParser(
 //				"[\\U0000-\\U007f]" +

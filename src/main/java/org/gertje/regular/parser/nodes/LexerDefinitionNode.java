@@ -8,11 +8,11 @@ import java.util.List;
 public class LexerDefinitionNode implements LexerNode {
 
 	private List<LexerClassNode> lexerClassNodeList;
-	private String lexerStartStateName;
+	private String startLexerStateName;
 
-	public LexerDefinitionNode(List<LexerClassNode> lexerClassNodeList, String lexerStartStateName) {
+	public LexerDefinitionNode(List<LexerClassNode> lexerClassNodeList, String startLexerStateName) {
 		this.lexerClassNodeList = lexerClassNodeList;
-		this.lexerStartStateName = lexerStartStateName;
+		this.startLexerStateName = startLexerStateName;
 	}
 
 	@Override
@@ -24,7 +24,7 @@ public class LexerDefinitionNode implements LexerNode {
 		return lexerClassNodeList;
 	}
 
-	public String getLexerStartStateName() {
-		return lexerStartStateName;
+	public String getStartLexerStateName() {
+		return startLexerStateName;
 	}
 }

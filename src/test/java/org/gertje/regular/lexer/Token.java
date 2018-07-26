@@ -4,9 +4,9 @@ public class Token {
 	private int lineNumber;
 	private int columnNumber;
 	private String value;
-	private TokenType tokenType;
+	private TestTokenType tokenType;
 
-	public Token(int lineNumber, int columnNumber, String value, TokenType tokenType) {
+	public Token(int lineNumber, int columnNumber, String value, TestTokenType tokenType) {
 		this.lineNumber = lineNumber;
 		this.columnNumber = columnNumber;
 		this.value = value;
@@ -25,7 +25,7 @@ public class Token {
 		return value;
 	}
 
-	public TokenType getTokenType() {
+	public TestTokenType getTokenType() {
 		return tokenType;
 	}
 }

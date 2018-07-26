@@ -19,7 +19,6 @@ import org.gertje.regular.parser.nodes.UnionNode;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -36,6 +35,7 @@ public class BuildLexerVisitor implements RegExNodeVisitor<Void, VisitingExcepti
 	private int[] alphabetIntervals;
 
 	private int lexerStartState;
+	private int lexerErrorState;
 
 	private Map<String, Integer> lexerClassIndexMap = new HashMap<>();
 	private Map<Integer, Integer> lexerClassStartStateMap = new HashMap<>();
@@ -133,36 +133,11 @@ public class BuildLexerVisitor implements RegExNodeVisitor<Void, VisitingExcepti
 			lexerClassNode.accept(this);
 		}
 
-//		printAutomaton(nfa, alphabetIntervals, false);
-
 		Automaton dfa = determinize();
-
-//		printAutomaton(dfa, alphabetIntervals, false);
-
-//		List<Set<Automaton.Transition>> list = dfa.getTransitionSetList();
-//		for (int i = 0; i < list.size(); i++) {
-//			Set<Automaton.Transition> set = dfa.getTransitionSetList().get(i);
-//
-//			System.out.print("'" + determineChar(i) + "'");
-//			System.out.print(": {");
-//			for (Automaton.Transition t : set) {
-//				System.out.print("'" + t.input + "': '" + determineChar(t.toState) + "',");
-//			}
-//			System.out.println("},");
-//		}
-
-//		String acceptingStates = dfa.getAcceptingStates().stream().map(this::determineChar).map(Object::toString)
-//				.collect(Collectors.joining(" "));
-//
-//		System.out.println(acceptingStates);
-
 
 		dfa = complete(dfa);
 
 		dfa = minimize(dfa);
-
-//		printAutomaton(dfa, alphabetIntervals, true);
-
 
 
 
@@ -179,7 +154,8 @@ public class BuildLexerVisitor implements RegExNodeVisitor<Void, VisitingExcepti
 		lexerDefinition.setDfa(dfa);
 		lexerDefinition.setAcceptingStateTokenTypes(acceptingStateTokenTypeMap);
 		lexerDefinition.setAlphabetIntervals(alphabetIntervals);
-		lexerDefinition.setLexerStartState(lexerClassIndexMap.get(node.getLexerStartStateName()));
+		lexerDefinition.setStartLexerState(lexerClassIndexMap.get(node.getStartLexerStateName()));
+		lexerDefinition.setErrorState(lexerErrorState);
 		return null;
 	}
 
@@ -188,6 +164,8 @@ public class BuildLexerVisitor implements RegExNodeVisitor<Void, VisitingExcepti
 
 		// Maak array ding aan
 		int[][] table = new int[oldDfa.getStateCount() + 1][oldDfa.getAlphabetSize()];
+
+		lexerErrorState = 0;
 
 		for (Automaton.Transition t : oldDfa.getTransitions()) {
 			table[t.fromState + 1][t.input] = t.toState + 1;
@@ -285,6 +263,7 @@ public class BuildLexerVisitor implements RegExNodeVisitor<Void, VisitingExcepti
 		}
 
 		acceptingStateTokenTypeMap = newAcceptingStateTokenTypeMap;
+		lexerErrorState = mapping[lexerErrorState];
 
 		return dfa;
 	}
@@ -413,21 +392,23 @@ public class BuildLexerVisitor implements RegExNodeVisitor<Void, VisitingExcepti
 
 	private static void printAutomaton(Automaton automaton, int[] alphabetIntervals, boolean skipErrorState) {
 
-		String acceptingStates = automaton.getAcceptingStates().stream().map(i -> i+1).map(Object::toString)
+		String acceptingStates = automaton.getAcceptingStates().stream().map(i -> i - 1).map(Object::toString)
 				.collect(Collectors.joining(" "));
 
 		System.out.println("digraph finite_state_machine {\n" +
 				"\trankdir=LR;\n" +
 				"\tsize=\"8,5\"\n" +
+				"\tnode [shape = point]; start;\n" +
 				"\tnode [shape = doublecircle]; " + acceptingStates + "\n" +
-				"\tnode [shape = circle];");
+				"\tnode [shape = circle];\n" +
+				"\tstart -> 1");
 
 		for (Automaton.Transition transition : automaton.getTransitions()) {
 			if (skipErrorState && transition.toState == 0) {
 				continue;
 			}
 			String input = determineInput(transition.input, alphabetIntervals);
-			System.out.println("\t" + (transition.fromState + 1) + " -> " + (transition.toState + 1) + " [ label = \"" + input + "\" ];");
+			System.out.println("\t" + (transition.fromState - 1) + " -> " + (transition.toState - 1) + " [ label = \"" + input + "\" ];");
 		}
 
 		System.out.println("}");
@@ -435,7 +416,7 @@ public class BuildLexerVisitor implements RegExNodeVisitor<Void, VisitingExcepti
 
 	private static String determineInput(int input, int[] alphabetIntervals) {
 		if (input < 0) {
-			return "epsilon";
+			return "&epsilon;";
 		}
 
 		int start = alphabetIntervals[input * 2];

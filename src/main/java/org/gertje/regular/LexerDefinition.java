@@ -23,6 +23,10 @@ public class LexerDefinition {
 		public int getLexerClass() {
 			return lexerClass;
 		}
+
+		public String getName() {
+			return name;
+		}
 	}
 
 	private String[] lexerClassNames;
@@ -33,8 +37,9 @@ public class LexerDefinition {
 
 	private Automaton dfa;
 
-	private int lexerStartState;
+	private int startLexerState;
 
+	private int errorState;
 
 	public String[] getLexerClassNames() {
 		return lexerClassNames;
@@ -68,12 +73,19 @@ public class LexerDefinition {
 		this.dfa = dfa;
 	}
 
-	public int getLexerStartState() {
-		return lexerStartState;
+	public int getStartLexerState() {
+		return startLexerState;
 	}
 
-	public void setLexerStartState(int lexerStartState) {
-		this.lexerStartState = lexerStartState;
+	public void setStartLexerState(int startLexerState) {
+		this.startLexerState = startLexerState;
 	}
 
+	public int getErrorState() {
+		return errorState;
+	}
+
+	public void setErrorState(int errorState) {
+		this.errorState = errorState;
+	}
 }

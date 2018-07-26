@@ -5,15 +5,27 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
+/**
+ * Minimizes an automaton.
+ *<br/>
+ * To do this it uses Hopcroft's algorithm (see
+ * <a href="https://en.wikipedia.org/wiki/DFA_minimization#Hopcroft's_algorithm">
+ *     https://en.wikipedia.org/wiki/DFA_minimization#Hopcroft's_algorithm</a>).
+ */
 public class AutomatonMinimizer {
 
+	/**
+	 * Class that represents the splitter.
+	 * <br/>
+	 * In Hopcroft's algorithm a splitter is a tuple of a set of states and a character from the alphabet. It is used in
+	 * the refinement process to split a set of states into two new sets.
+	 */
 	private class Splitter {
 		private Set<Integer> clazz;
 		private int input;
 
-		public Splitter(Set<Integer> clazz, int input) {
+		private Splitter(Set<Integer> clazz, int input) {
 			this.clazz = clazz;
 			this.input = input;
 		}
@@ -54,25 +66,20 @@ public class AutomatonMinimizer {
 		this.partitioner = partitioner;
 	}
 
+	/**
+	 * Minimizes the given automaton.
+	 * @param dfa The automaton to minimize. Note that for this to work the automaton should be <em>complete</em>, i.e.
+	 *            for every state there should be a transition for every character.
+	 * @return The minimized automaton.
+	 */
 	public Automaton minimize(Automaton dfa) {
 		this.dfa = dfa;
-
-		// Hopcroft's algorithm (see https://en.wikipedia.org/wiki/DFA_minimization#Hopcroft's_algorithm).
 
 		// The algorithm works by refining a partition of states based on their behaviour.
 
 		// Determine the alphabet (capital sigma).
 		int alphabetSize = dfa.getAlphabetSize();
 		int stateCount = dfa.getStateCount();
-
-//		int inverseTransitions[][] = new int[stateCount + 1][alphabetSize];
-//		for (int[] inv : inverseTransitions) {
-//			Arrays.fill(inv, stateCount);
-//		}
-//
-//		for (Automaton.Transition t : dfa.getTransitions()) {
-//			inverseTransitions[t.toState][t.input] = t.fromState;
-//		}
 
 		// Determine all accepting states.
 		Set<Integer> acceptingStates = dfa.getAcceptingStates();
@@ -83,8 +90,6 @@ public class AutomatonMinimizer {
 
 		// Determine all states that are not an accepting state. (Q \ F)
 		Set<Integer> nonAcceptingStates = complement(determineAllStates(stateCount), acceptingStates);
-
-//		Set<Integer> minAcceptingStates = acceptingStates.size() < nonAcceptingStates.size() ? acceptingStates : nonAcceptingStates;
 
 		// The initial partitioning is the sets of accepting states and the rest. (P)
 		Set<Set<Integer>> partitions = new HashSet<>(acceptingStatePartitions);
@@ -99,20 +104,15 @@ public class AutomatonMinimizer {
 		}
 
 		// Add all partitions for the accepting states to the work supply (W).
-//		work.addAll(acceptingStatePartitions);
-//		work.add(nonAcceptingStates);
 		Splitter splitter;
 
 		// Check to see if there is some work left to do.
 		while(!work.isEmpty()) {
 
-//			printPartitions(partitions);
-//			printWork(work);
-
 			// Get (and remove) the first item from the work supply.
 			splitter = work.removeFirst();
 
-			// Find all
+			// Find all states that, given the splitter input, transition to the splitter state.
 			Set<Integer> o = determineOriginStates(splitter, dfa.getTransitions());
 
 			// If x is empty, all intersections of x with y will be empty as well. So the loop below will never
@@ -137,90 +137,28 @@ public class AutomatonMinimizer {
 					continue;
 				}
 
-				// Replace y with the intersection and the complement.
+				// Refine the partitions; replace y with the intersection and the complement.
 				partitions.remove(c);
 				partitions.add(intersection);
 				partitions.add(complement);
 
-//				System.out.print("refine: ");
-//				printPartitions(partitions);
+				refineWork(work, c, intersection, complement);
 
-				refine(work, c, intersection, complement);
-
-//				System.out.print("refine: ");
-//				printWork(work);
 			}
-
-
-//			// Loop over all (current) partitions.
-//			List<Set<Integer>> currentPartitions = new ArrayList<>(partitions);
-//			for (Set<Integer> c : currentPartitions) {
-//
-//				// Check if c is split by the splitter.
-//				for (Integer x : c) {
-//					for (Automaton.Transition t : dfa.getTransitionSetList().get(x)) {
-//						if (t.input == splitter.input && splitter.clazz.contains(t.toState)) {
-//
-//						}
-//					}
-//				}
-//
-//				// If x is empty, all intersections of x with y will be empty as well. So the loop below will never
-//				// partition the set any further. Skip it altogether.
-//				if (x.isEmpty()) {
-//					continue;
-//				}
-//
-//				// Loop over all (current) partitions.
-//				List<Set<Integer>> currentPartitions = new ArrayList<>(partitions);
-//				for (Set<Integer> y : currentPartitions) {
-//
-//					// Find the intersection between x and y.
-//					Set<Integer> intersection = intersect(x, y);
-//
-//					// Find the complement of x on y.
-//					Set<Integer> complement = complement(y, x);
-//
-//					// When there is an intersection and a complement, we must partition the set further.
-//					if (!intersection.isEmpty() && !complement.isEmpty()) {
-//						// Replace y with the intersection and the complement.
-//						partitions.remove(y);
-//						partitions.add(intersection);
-//						partitions.add(complement);
-//
-//						// Replace Y with the intersection and the complement in the work supply or add the smallest.
-//						if (work.remove(y)) {
-//							work.add(complement);
-//							work.add(intersection);
-//						} else {
-//							if (intersection.size() <= complement.size()) {
-//								work.add(intersection);
-//							} else {
-//								work.add(complement);
-//							}
-//						}
-//					}
-//				}
-//			}
 		}
 
 		// Create new states based on the partitions; every partition represents a new state.
 		return buildMinimizedDfa(partitions, dfa);
 	}
 
-	private void printPartitions(Set<Set<Integer>> partitions) {
-		System.out.println(partitions.stream().map(x -> {
-			return x.stream().map(y -> y + 1).map(Object::toString).collect(Collectors.joining(",", "{", "}"));
-		}).collect(Collectors.joining(", ")));
-
-	}
-
-	private void printWork(LinkedList<Splitter> work) {
-		System.out.println(work.stream().map(
-				s -> s.clazz.stream().map(x -> x + 1).map(Object::toString).collect(Collectors.joining(",")) + ";" + ((char)(s.input + 'a'))).collect(Collectors.joining(" | ")));
-	}
-
-	private void refine(LinkedList<Splitter> work, Set<Integer> original, Set<Integer> c, Set<Integer> d) {
+	/**
+	 * Refines the sets of states in the work stack.
+	 * @param work The stack of splitters to process.
+	 * @param original The original partition we are investigating.
+	 * @param c The first part of the partition we split.
+	 * @param d The second part of the partition we split.
+	 */
+	private void refineWork(LinkedList<Splitter> work, Set<Integer> original, Set<Integer> c, Set<Integer> d) {
 		int alphabetSize = dfa.getAlphabetSize();
 		Set<Integer> min = c.size() < d.size() ? c : d;
 
@@ -230,12 +168,17 @@ public class AutomatonMinimizer {
 				work.add(new Splitter(c, x));
 				work.add(new Splitter(d, x));
 			}
-//			work.add(new Splitter(c, x));
-//			work.add(new Splitter(d, x));
 			work.add(new Splitter(min, x));
 		}
 	}
 
+	/**
+	 * Builds a new DFA. Every partition represents a new states, and all (old) states in a partition are merged
+	 * together.
+	 * @param partitions The refined partitions.
+	 * @param dfa The original {@link Automaton}.
+	 * @return A minimized version of the original Automaton.
+	 */
 	private Automaton buildMinimizedDfa(Set<Set<Integer>> partitions, Automaton dfa) {
 		Set<Integer> acceptingStates = dfa.getAcceptingStates();
 		int startState = dfa.getStartState();
@@ -243,7 +186,7 @@ public class AutomatonMinimizer {
 		Automaton minimizedDfa = new Automaton();
 		oldStateNewStateMapping = new int[dfa.getStateCount()];
 
-		// Maak nieuwe states o.b.v. de partities. Elke partitie representeert een nieuwe state.
+		// Create new states based on the partitions. Every partition represents a new state.
 		for (Set<Integer> partition : partitions) {
 			int newState = minimizedDfa.addState();
 
@@ -271,26 +214,11 @@ public class AutomatonMinimizer {
 		return minimizedDfa;
 	}
 
-	private static void printSetSet(String x, Set<Set<Integer>> v) {
-		System.out.print(x + ": {");
-		for (Set<Integer> z : v) {
-			System.out.print("{");
-			for (Integer i : z) {
-				System.out.print(i + ", ");
-			}
-			System.out.print("}");
-		}
-		System.out.println("}");
-	}
-
-	private static void printSet(String x, Set<Integer> v) {
-		System.out.print(x + ": {");
-		for (Integer i : v) {
-			System.out.print(i + ", ");
-		}
-		System.out.println("}");
-	}
-
+	/**
+	 * Builds a set of states for all states from {@code 0} up until {@code stateCount}.
+	 * @param stateCount The number of states that should be in the set.
+	 * @return The set containing the states.
+	 */
 	private static Set<Integer> determineAllStates(int stateCount) {
 		Set<Integer> set = new HashSet<>();
 		for (int i = 0; i < stateCount; i++) {
@@ -299,22 +227,12 @@ public class AutomatonMinimizer {
 		return set;
 	}
 
-
-//	private static Set<Set<Integer>> partitionAcceptingStates(Set<Integer> acceptingStates,
-//			Automaton dfa) {
-//
-//		Map<T, Set<Integer>> tokenTypeSets = new HashMap<>();
-//		for (Integer i : acceptingStates) {
-//			T tokenType = dfa.getStateList().get(i);
-//			if (tokenType == null) {
-//				continue;
-//			}
-//			Set<Integer> states = tokenTypeSets.computeIfAbsent(tokenType, k -> new HashSet<>());
-//			states.add(i);
-//		}
-//		return new HashSet<>(tokenTypeSets.values());
-//	}
-
+	/**
+	 * Calculates the intersection ({@code x ∩ y}).
+	 * @param x x
+	 * @param y y
+	 * @return A new set that represents the intersection.
+	 */
 	private static <T> Set<T> intersect(Set<T> x, Set<T> y) {
 		Set<T> small, large;
 
@@ -337,6 +255,12 @@ public class AutomatonMinimizer {
 		return intersection;
 	}
 
+	/**
+	 * Calculates the complement of y with respect to x ({@code x \ y}).
+	 * @param x x
+	 * @param y y
+	 * @return A new set that represents the complement.
+	 */
 	private static <T> Set<T> complement(Set<T> x, Set<T> y) {
 		Set<T> result = new HashSet<>(x);
 		result.removeAll(y);
@@ -344,6 +268,12 @@ public class AutomatonMinimizer {
 		return result;
 	}
 
+	/**
+	 * Determines all states that given the input from the splitter lead to a state in the splitter.
+	 * @param splitter The splitter for which to find the origin states.
+	 * @param transitions A set containing all transitions in the DFA.
+	 * @return The set of origin states.
+	 */
 	private static Set<Integer> determineOriginStates(Splitter splitter, Set<Automaton.Transition> transitions) {
 		Set<Integer> result = new HashSet<>();
 
@@ -354,7 +284,6 @@ public class AutomatonMinimizer {
 		}
 		return result;
 	}
-
 
 	public int[] getOldStateNewStateMapping() {
 		return oldStateNewStateMapping;

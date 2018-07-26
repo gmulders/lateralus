@@ -3,14 +3,25 @@ package org.gertje.regular;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Responsible for determinizing an {@link Automaton}.
+ * </br><br/>
+ * A generic automaton can be either deterministic or non-deterministic depending on the presence of so called
+ * &epsilon;-transitions (transitions that allow for state-change without input). Any non-deterministic finite automaton
+ * (NFA) can be expressed as a deterministic finite automaton (DFA).
+ * <br/>
+ * This class translates a NFA into a DFA.
+ */
 public class AutomatonDeterminizer {
 
+	/**
+	 * Inner class that represents a DFA state, which is an element of the power set of the states of the NFA.
+	 */
 	private static class DFAState {
 		private int[] states;
 		private int hash;
@@ -49,7 +60,11 @@ public class AutomatonDeterminizer {
 		}
 	}
 
+	/**
+	 * The NFA.
+	 */
 	private Automaton nfa;
+
 
 	private int[] stateStack;
 	private int[] stateSet;
@@ -265,23 +280,6 @@ public class AutomatonDeterminizer {
 
 		return Arrays.copyOf(stateSet, i);
 	}
-
-//	private T determineTokenType(int[] states) {
-//		T tokenType = null;
-//		for (int state : states) {
-//			T currentTokenType = nfa.getStateList().get(state);
-//			if (currentTokenType == null) {
-//				continue;
-//			}
-//
-//			if (tokenType == null) {
-//				tokenType = currentTokenType;
-//			} else {
-//				tokenType = tokenType.ordinal() > currentTokenType.ordinal() ? currentTokenType : tokenType;
-//			}
-//		}
-//		return tokenType;
-//	}
 
 	private boolean containsState(int[] left, Set<Integer> right) {
 
