@@ -1,9 +1,7 @@
 package org.gertje.regular.parser;
 
-import org.gertje.regular.Interval;
 import org.gertje.regular.parser.nodes.AbstractRegExNode;
 import org.gertje.regular.parser.nodes.ConcatNode;
-import org.gertje.regular.parser.nodes.LexerNode;
 import org.gertje.regular.parser.nodes.OptionalNode;
 import org.gertje.regular.parser.nodes.PlusNode;
 import org.gertje.regular.parser.nodes.CharSetNode;

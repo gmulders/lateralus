@@ -5,7 +5,7 @@ import org.gertje.regular.parser.visitors.VisitingException;
 
 public class ConcatNode extends AbstractBinaryNode {
 
-	public ConcatNode(LexerNode lhs, LexerNode rhs) {
+	public ConcatNode(AbstractRegExNode lhs, AbstractRegExNode rhs) {
 		super(lhs, rhs);
 	}
 

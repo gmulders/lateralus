@@ -1,6 +1,6 @@
 package org.gertje.regular.parser.nodes;
 
-import org.gertje.regular.Interval;
+import org.gertje.regular.parser.Interval;
 import org.gertje.regular.parser.visitors.RegExNodeVisitor;
 import org.gertje.regular.parser.visitors.VisitingException;
 

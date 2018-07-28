@@ -1,4 +1,4 @@
-package org.gertje.regular;
+package org.gertje.regular.automaton;
 
 import java.util.ArrayList;
 import java.util.HashSet;

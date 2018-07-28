@@ -1,5 +1,6 @@
 package org.gertje.regular;
 
+import org.gertje.regular.definition.LexerDefinition;
 import org.gertje.regular.lexer.LexerException;
 import org.gertje.regular.lexer.TestLexer;
 import org.gertje.regular.lexer.Token;

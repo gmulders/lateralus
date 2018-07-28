@@ -1,4 +1,4 @@
-package org.gertje.regular;
+package org.gertje.regular.automaton;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,12 +15,12 @@ import java.util.stream.Collectors;
  * &epsilon;-transitions (transitions that allow for state-change without input). Any non-deterministic finite automaton
  * (NFA) can be expressed as a deterministic finite automaton (DFA).
  * <br/>
- * This class translates a NFA into a DFA.
+ * This class translates a NFA into a DFA using the powerset construction.
  */
 public class AutomatonDeterminizer {
 
 	/**
-	 * Inner class that represents a DFA state, which is an element of the power set of the states of the NFA.
+	 * Inner class that represents a DFA state, which is an element of the powerset of the states of the NFA.
 	 */
 	private static class DFAState {
 		private int[] states;

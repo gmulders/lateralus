@@ -2,28 +2,19 @@ package org.gertje.regular.parser.nodes;
 
 public abstract class AbstractBinaryNode extends AbstractRegExNode {
 
-	private LexerNode lhs;
-	private LexerNode rhs;
+	private AbstractRegExNode lhs;
+	private AbstractRegExNode rhs;
 
-	public AbstractBinaryNode(LexerNode lhs, LexerNode rhs) {
+	public AbstractBinaryNode(AbstractRegExNode lhs, AbstractRegExNode rhs) {
 		this.lhs = lhs;
 		this.rhs = rhs;
 	}
 
-	public LexerNode getLhs() {
+	public AbstractRegExNode getLhs() {
 		return lhs;
 	}
 
-	public void setLhs(LexerNode lhs) {
-		this.lhs = lhs;
-	}
-
-	public LexerNode getRhs() {
+	public AbstractRegExNode getRhs() {
 		return rhs;
 	}
-
-	public void setRhs(LexerNode rhs) {
-		this.rhs = rhs;
-	}
-
 }

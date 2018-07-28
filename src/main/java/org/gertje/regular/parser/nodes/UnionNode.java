@@ -5,7 +5,7 @@ import org.gertje.regular.parser.visitors.VisitingException;
 
 public class UnionNode extends AbstractBinaryNode {
 
-	public UnionNode(LexerNode lhs, LexerNode rhs) {
+	public UnionNode(AbstractRegExNode lhs, AbstractRegExNode rhs) {
 		super(lhs, rhs);
 	}
 

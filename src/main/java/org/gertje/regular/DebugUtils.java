@@ -1,5 +1,7 @@
 package org.gertje.regular;
 
+import org.gertje.regular.automaton.Automaton;
+
 import java.util.Set;
 import java.util.stream.Collectors;
 

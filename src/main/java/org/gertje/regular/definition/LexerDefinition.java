@@ -1,4 +1,6 @@
-package org.gertje.regular;
+package org.gertje.regular.definition;
+
+import org.gertje.regular.automaton.Automaton;
 
 import java.util.Map;
 

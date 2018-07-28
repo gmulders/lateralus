@@ -5,7 +5,7 @@ import org.gertje.regular.parser.visitors.VisitingException;
 
 public class StarNode extends AbstractUnaryNode {
 
-	public StarNode(LexerNode operand) {
+	public StarNode(AbstractRegExNode operand) {
 		super(operand);
 	}
 

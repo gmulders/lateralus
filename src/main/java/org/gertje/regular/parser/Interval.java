@@ -1,4 +1,4 @@
-package org.gertje.regular;
+package org.gertje.regular.parser;
 
 public class Interval {
 

@@ -1,7 +1,7 @@
 package org.gertje.regular.util;
 
-import org.gertje.regular.Automaton;
-import org.gertje.regular.LexerDefinition;
+import org.gertje.regular.automaton.Automaton;
+import org.gertje.regular.definition.LexerDefinition;
 import org.gertje.regular.lexer.LexerReaderImpl;
 import org.gertje.regular.lexer.TestLexer;
 import org.gertje.regular.lexer.TestTokenType;

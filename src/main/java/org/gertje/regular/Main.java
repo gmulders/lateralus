@@ -1,13 +1,14 @@
 package org.gertje.regular;
 
+import org.gertje.regular.automaton.Automaton;
+import org.gertje.regular.definition.LexerDefinition;
+import org.gertje.regular.definition.LexerDefinitionBuilder;
 import org.gertje.regular.parser.RegExException;
 import org.gertje.regular.parser.RegExParser;
 import org.gertje.regular.parser.nodes.AbstractRegExNode;
 import org.gertje.regular.parser.nodes.LexerClassNode;
 import org.gertje.regular.parser.nodes.LexerDefinitionNode;
 import org.gertje.regular.parser.nodes.LexerTokenNode;
-import org.gertje.regular.parser.visitors.BuildLexerVisitor;
-import org.gertje.regular.parser.visitors.IntervalCollectorVisitor;
 
 import java.util.Arrays;
 
@@ -66,15 +67,8 @@ public class Main {
 
 		LexerDefinitionNode lexerDefinitionNode = new LexerDefinitionNode(Arrays.asList(lexerClassNode), "DEFAULT");
 
-		// Determine the array with the intervals that define the alphabet.
-		int[] alphabetIntervals = IntervalUtils.splitIntervals(new IntervalCollectorVisitor().collectIntervals(lexerClassNode));
-//		int alphabetSize = alphabetIntervals.length / 2;
-
 		// Create the Lexer from the regex parse tree and the interval array.
-		BuildLexerVisitor visitor = new BuildLexerVisitor();
-		LexerDefinition lexerDefinition = visitor.convert(lexerDefinitionNode, alphabetIntervals);
-
-
+		LexerDefinition lexerDefinition = new LexerDefinitionBuilder().build(lexerDefinitionNode);
 
 
 //		// Translates a unicode codepoint to the correct input element from the alphabet.
