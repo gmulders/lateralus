@@ -1,21 +1,27 @@
 package org.gertje.regular.definition;
 
+import org.gertje.regular.DebugUtils;
 import org.gertje.regular.automaton.Automaton;
 import org.gertje.regular.automaton.AutomatonDeterminizer;
 import org.gertje.regular.automaton.AutomatonMinimizer;
 import org.gertje.regular.parser.nodes.LexerClassNode;
 import org.gertje.regular.parser.nodes.LexerDefinitionNode;
 import org.gertje.regular.parser.nodes.LexerTokenNode;
-import org.gertje.regular.parser.visitors.ThompsonConstructor;
 import org.gertje.regular.parser.visitors.IntervalCollector;
+import org.gertje.regular.parser.visitors.ThompsonConstructor;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
  * Builds a lexer definition ({@link LexerDefinition}) given a lexer definition node ({@link LexerDefinitionNode}).
+ *
+ * TODO: Find more suitable name.
  */
 public class LexerDefinitionBuilder {
 
@@ -39,6 +45,11 @@ public class LexerDefinitionBuilder {
 	private Map<Integer, Integer> lexerClassStartStateMap = new HashMap<>();
 
 	/**
+	 * The list with all token types.
+	 */
+	private List<LexerDefinition.TokenType> tokenTypeList = new ArrayList<>();
+
+	/**
 	 * Mapping from an accepting state -> token type.
 	 */
 	private Map<Integer, LexerDefinition.TokenType> acceptingStateTokenTypeMap = new HashMap<>();
@@ -47,11 +58,6 @@ public class LexerDefinitionBuilder {
 	 * The number of classes in the lexer.
 	 */
 	private int nrOfClasses;
-
-	/**
-	 * The number of token types in the lexer.
-	 */
-	private int nrOfTokenTypes;
 
 	public LexerDefinitionBuilder() {
 	}
@@ -89,6 +95,13 @@ public class LexerDefinitionBuilder {
 		// Minimize the DFA.
 		dfa = minimize(dfa);
 
+		DebugUtils.printAutomaton(dfa, alphabetIntervals, lexerErrorState, true);
+
+		Map<LexerDefinition.TokenType, Set<Integer>> newMap = new HashMap<>();
+		acceptingStateTokenTypeMap.forEach((i, t) -> newMap.computeIfAbsent(t, t2 -> new HashSet<>()).add(i));
+
+		newMap.forEach((t, s) -> System.out.println(t.getName() + " " + Arrays.toString(s.toArray())));
+
 		// Create the lexer definition.
 		return createLexerDefinition(dfa, alphabetIntervals, node.getStartLexerStateName());
 	}
@@ -112,6 +125,7 @@ public class LexerDefinitionBuilder {
 
 		lexerDefinition.setLexerClassNames(lexerClassNames);
 		lexerDefinition.setDfa(dfa);
+		lexerDefinition.setTokenTypeList(tokenTypeList);
 		lexerDefinition.setAcceptingStateTokenTypes(acceptingStateTokenTypeMap);
 		lexerDefinition.setAlphabetIntervals(alphabetIntervals);
 		lexerDefinition.setStartLexerState(lexerClassIndexMap.get(startLexerStateName));
@@ -183,7 +197,9 @@ public class LexerDefinitionBuilder {
 
 		// Determine the lexer class index of the token, add the class if it does not exist.
 		int lexerClassIndex = determineLexerClassIndex(node.getResultClassName());
-		LexerDefinition.TokenType currentTokenType = new LexerDefinition.TokenType(nrOfTokenTypes++, node.getName(), lexerClassIndex);
+		LexerDefinition.TokenType currentTokenType = new LexerDefinition.TokenType(tokenTypeList.size(), node.getName(), lexerClassIndex);
+
+		tokenTypeList.add(currentTokenType);
 
 		acceptingStateTokenTypeMap.put(endState, currentTokenType);
 	}

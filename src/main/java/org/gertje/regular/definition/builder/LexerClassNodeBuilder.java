@@ -1,5 +1,4 @@
-
-package org.gertje.regular.util;
+package org.gertje.regular.definition.builder;
 
 import org.gertje.regular.parser.RegExException;
 import org.gertje.regular.parser.RegExParser;

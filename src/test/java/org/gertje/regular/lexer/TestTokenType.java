@@ -40,4 +40,13 @@ public class TestTokenType implements TokenType {
 	public int hashCode() {
 		return ordinal;
 	}
+
+	@Override
+	public String toString() {
+		return "TestTokenType{" +
+				"ordinal=" + ordinal +
+				", name='" + name + '\'' +
+				", lexerState=" + lexerState +
+				'}';
+	}
 }

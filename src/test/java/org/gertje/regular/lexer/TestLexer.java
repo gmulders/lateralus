@@ -37,8 +37,6 @@ public class TestLexer {
 
 	public Token determineNextToken() throws IOException, LexerException {
 
-		int t;
-
 		reader.startLexeme();
 
 		int lineNumber = reader.getCurrentLineNumber();
@@ -46,28 +44,24 @@ public class TestLexer {
 
 		boolean match = false;
 
-		// The end state is the last
-		int endState = startState;
-		int state;
-
 		// Bring the state to the starting state for the current lexer state.
-		state = transitions[endState][lexerState];
+		int state = transitions[startState][lexerState];
 
+		int t;
 		while ((t = reader.peek()) != -1) {
 
 			// Determine the next state.
-			state = transitions[state][alphabetMap[t]];
+			int newState = transitions[state][alphabetMap[t]];
 
-			// If this is the error state we can stop this loop.
-			if (state == errorState) {
+			// If we have come in the error state we can stop this loop.
+			if (newState == errorState) {
 				break;
 			}
 
-			endState = state;
+			state = newState;
 
 			// Check whether the state is an accepting state.
-
-			if (isEndState[endState]) {
+			if (isEndState[state]) {
 				match = true;
 			}
 
@@ -81,7 +75,7 @@ public class TestLexer {
 		// - if we ended in an error state.
 
 		if (match) {
-			TestTokenType tokenType = tokenTypes[endState];
+			TestTokenType tokenType = tokenTypes[state];
 			lexerState = tokenType.lexerState();
 			return new Token(lineNumber, columnNumber, reader.readLexeme(), tokenType);
 		} else if (t == -1) {

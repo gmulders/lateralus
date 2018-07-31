@@ -1,12 +1,12 @@
-package org.gertje.regular.lexer;
+package ${packageName};
 
 public class Token {
 	private int lineNumber;
 	private int columnNumber;
 	private String value;
-	private TestTokenType tokenType;
+	private TokenType tokenType;
 
-	public Token(int lineNumber, int columnNumber, String value, TestTokenType tokenType) {
+	public Token(int lineNumber, int columnNumber, String value, TokenType tokenType) {
 		this.lineNumber = lineNumber;
 		this.columnNumber = columnNumber;
 		this.value = value;
@@ -25,7 +25,7 @@ public class Token {
 		return value;
 	}
 
-	public TestTokenType getTokenType() {
+	public TokenType getTokenType() {
 		return tokenType;
 	}
 

@@ -6,5 +6,5 @@ import java.util.Collection;
 
 public interface CodeGenerator {
 
-	Collection<SourceFile> generate(LexerDefinition lexerDefinition);
+	Collection<SourceFile> generate(LexerDefinition lexerDefinition) throws CodeGenerationException;
 }

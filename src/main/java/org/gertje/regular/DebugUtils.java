@@ -28,7 +28,7 @@ public class DebugUtils {
 		System.out.println("}");
 	}
 
-	public static void printAutomaton(Automaton automaton, int[] alphabetIntervals, boolean skipErrorState) {
+	public static void printAutomaton(Automaton automaton, int[] alphabetIntervals, int errorState, boolean skipErrorState) {
 
 		String acceptingStates = automaton.getAcceptingStates().stream().map(i -> i - 1).map(Object::toString)
 				.collect(Collectors.joining(" "));
@@ -42,7 +42,7 @@ public class DebugUtils {
 				"\tstart -> 1");
 
 		for (Automaton.Transition transition : automaton.getTransitions()) {
-			if (skipErrorState && transition.toState == 0) {
+			if (skipErrorState && transition.toState == errorState) {
 				continue;
 			}
 			String input = determineInput(transition.input, alphabetIntervals);

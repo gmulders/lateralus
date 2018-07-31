@@ -1,17 +1,22 @@
 package org.gertje.regular;
 
+import bla.BasicLexer;
+import bla.LexerReaderImpl;
+import bla.TokenType;
 import org.gertje.regular.definition.LexerDefinition;
+import org.gertje.regular.definition.builder.LexerDefinitionBuilder;
 import org.gertje.regular.lexer.LexerException;
 import org.gertje.regular.lexer.TestLexer;
 import org.gertje.regular.lexer.Token;
 import org.gertje.regular.parser.RegExException;
-import org.gertje.regular.util.LexerDefinitionBuilder;
 import org.gertje.regular.util.TestLexerBuilder;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -268,14 +273,34 @@ public class SimpleTest {
 	public void testRegex7() throws RegExException, IOException, LexerException {
 		LexerDefinition lexerDefinition = createSimpleExpressionLexer();
 
-		String input = "<=>= ? 7..8 / 55\t _dd 'bla' + '\\t\\n' D'2017-06-21' && || % * / ! !=";
+		String input = "<=>= ? 7..8 / 55\t _dd 'bla' + '\\t\\n' D'2017-06-21';\n && ()|| % * / ! != true false";
 
 		Reader reader = new StringReader(input);
 		TestLexer testLexer = new TestLexerBuilder(reader, lexerDefinition).build();
 
+		List<Token> tokens = new ArrayList<>();
+
 		Token token = testLexer.determineNextToken();
 		while (!isType(token, "EOF")) {
+//			System.out.println(token.getTokenType().getName());
+			tokens.add(token);
 			token = testLexer.determineNextToken();
+		}
+
+		List<bla.Token> tokens1 = new ArrayList<>();
+		try {
+			BasicLexer basicLexer = new BasicLexer(new LexerReaderImpl(new StringReader(input)));
+			bla.Token t = basicLexer.determineNextToken();
+			while (t.getTokenType() != TokenType.EOF) {
+				tokens1.add(t);
+				t = basicLexer.determineNextToken();
+			}
+		} catch (bla.LexerException e) {
+			e.printStackTrace();
+		}
+
+		for (int i = 0; i < tokens.size(); i++) {
+			assertEquals(tokens.get(i).getTokenType().getName(), tokens1.get(i).getTokenType().name());
 		}
 	}
 
@@ -287,6 +312,7 @@ public class SimpleTest {
 					.addLexerToken("END_OF_EXPRESSION", ";", "DEFAULT")
 					.addLexerToken("NEW_LINE", "\\r\\n|\\r|\\n", "DEFAULT")
 					.addLexerToken("DATE_START", "D'", "DATE")
+					.addLexerToken("BOOLEAN", "true|false", "DEFAULT")
 					.addLexerToken("IDENTIFIER", "([a-zA-Z_])[a-zA-Z0-9_]*", "DEFAULT")
 					.addLexerToken("LEFT_PARENTHESIS", "\\(", "DEFAULT")
 					.addLexerToken("RIGHT_PARENTHESIS", ")", "DEFAULT")
@@ -295,7 +321,6 @@ public class SimpleTest {
 					.addLexerToken("STRING_START", "'", "STRING")
 					.addLexerToken("DECIMAL", "([0-9]+\\.[0-9]*)|([0-9]*\\.[0-9]+)", "DEFAULT")
 					.addLexerToken("INTEGER", "[0-9]+", "DEFAULT")
-					.addLexerToken("BOOLEAN", "true|false", "DEFAULT")
 					.addLexerToken("BOOLEAN_AND", "&&", "DEFAULT")
 					.addLexerToken("BOOLEAN_OR", "[|][|]", "DEFAULT")
 					.addLexerToken("PLUS", "+", "DEFAULT")
@@ -323,7 +348,7 @@ public class SimpleTest {
 					.addLexerToken("STRING_TAB", "\\\\t", "STRING")
 					.addLexerToken("STRING_NEW_LINE", "\\\\n", "STRING")
 					.addLexerToken("STRING_CARRIAGE_RETURN", "\\\\r", "STRING")
-					.addLexerToken("STRING_BACK_SLASH", "\\\\\\\\", "STRING")
+					.addLexerToken("STRING_BACKSLASH", "\\\\\\\\", "STRING")
 				.end()
 				.startLexerClass("DATE")
 					.addLexerToken("DATE_PART", "[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]", "DATE")
