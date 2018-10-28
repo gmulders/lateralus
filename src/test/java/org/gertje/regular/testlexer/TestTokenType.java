@@ -1,4 +1,4 @@
-package org.gertje.regular.lexer;
+package org.gertje.regular.testlexer;
 
 public class TestTokenType implements TokenType {
 

@@ -1,6 +1,6 @@
 package org.gertje.regular.codegenerator;
 
-import freemarker.template.Configuration;
+import freemarker.cache.ClassTemplateLoader;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import org.gertje.regular.automaton.Automaton;
@@ -21,37 +21,38 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+/**
+ * Generates a basic Java lexer from a lexer definition and a configuration.
+ */
 public class BasicLexerGenerator extends AbstractFreeMarkerCodeGenerator {
 
-	private Map<String, Object> generatorConfig;
-
-	public BasicLexerGenerator(Map<String, Object> generatorConfig) {
-		this.generatorConfig = generatorConfig;
-	}
-
-	public BasicLexerGenerator(Map<String, Object> generatorConfig, Configuration configuration) {
-		super(configuration);
-		this.generatorConfig = generatorConfig;
+	public BasicLexerGenerator() {
+		super(new ClassTemplateLoader(BasicLexerGenerator.class, "/templates"));
 	}
 
 	@Override
-	public Collection<SourceFile> generate(LexerDefinition lexerDefinition) throws CodeGenerationException {
+	public Collection<SourceFile> generate(LexerDefinition lexerDefinition, Map<String, Object> generatorConfig)
+			throws CodeGenerationException {
 
 		// Create a Set for the source files.
 		Set<SourceFile> sourceFiles = new HashSet<>();
 
-		sourceFiles.add(createBasicLexer(lexerDefinition));
-		sourceFiles.add(createTokenTypes(lexerDefinition));
-		sourceFiles.add(createSourceFile("lexer-exception.ftl", "LexerException.java", createBaseModel()));
-		sourceFiles.add(createSourceFile("lexer-reader.ftl", "LexerReader.java", createBaseModel()));
-		sourceFiles.add(createSourceFile("lexer-reader-impl.ftl", "LexerReaderImpl.java", createBaseModel()));
-		sourceFiles.add(createSourceFile("lexer.ftl", "Lexer.java", createBaseModel()));
-		sourceFiles.add(createSourceFile("token.ftl", "Token.java", createBaseModel()));
+		sourceFiles.add(createBasicLexer(lexerDefinition, generatorConfig));
+		sourceFiles.add(createTokenTypes(lexerDefinition, generatorConfig));
+
+		Map<String, Object> model = createBaseModel(generatorConfig);
+		sourceFiles.add(createSourceFile("lexer-exception.ftl", "LexerException.java", model, generatorConfig));
+		sourceFiles.add(createSourceFile("lexer-reader.ftl", "LexerReader.java", model, generatorConfig));
+		sourceFiles.add(createSourceFile("lexer-reader-impl.ftl", "LexerReaderImpl.java", model, generatorConfig));
+		sourceFiles.add(createSourceFile("lexer.ftl", "Lexer.java", model, generatorConfig));
+		sourceFiles.add(createSourceFile("token.ftl", "Token.java", model, generatorConfig));
 		return sourceFiles;
 	}
 
-	private SourceFile createBasicLexer(LexerDefinition lexerDefinition) throws CodeGenerationException {
-		Map<String, Object> model = createBaseModel();
+	private SourceFile createBasicLexer(LexerDefinition lexerDefinition, Map<String, Object> generatorConfig)
+			throws CodeGenerationException {
+
+		Map<String, Object> model = createBaseModel(generatorConfig);
 		model.put("startState", lexerDefinition.getDfa().getStartState());
 		model.put("errorState", lexerDefinition.getErrorState());
 		model.put("transitions", createTransitionsString(lexerDefinition));
@@ -62,7 +63,9 @@ public class BasicLexerGenerator extends AbstractFreeMarkerCodeGenerator {
 		model.put("isEndState", createIsEndStateString(lexerDefinition));
 		model.put("tokenTypes", createTokenTypesString(lexerDefinition));
 
-		return createSourceFile("basic-lexer.ftl", "BasicLexer.java", model);
+
+		String fileName = generatorConfig.get("lexerName") + "Lexer.java";
+		return createSourceFile("basic-lexer.ftl", fileName, model, generatorConfig);
 	}
 
 	private String createTokenTypesString(LexerDefinition lexerDefinition) {
@@ -130,26 +133,28 @@ public class BasicLexerGenerator extends AbstractFreeMarkerCodeGenerator {
 				.collect(Collectors.joining(", "));
 	}
 
-	private SourceFile createTokenTypes(LexerDefinition lexerDefinition) throws CodeGenerationException {
-		Map<String, Object> model = createBaseModel();
+	private SourceFile createTokenTypes(LexerDefinition lexerDefinition, Map<String, Object> generatorConfig)
+			throws CodeGenerationException {
+
+		Map<String, Object> model = createBaseModel(generatorConfig);
 		model.put("tokenTypes", determineTokenTypes(lexerDefinition));
 
-		return createSourceFile("token-type.ftl", "TokenType.java", model);
+		return createSourceFile("token-type.ftl", "TokenType.java", model, generatorConfig);
 	}
 
 	private List<LexerDefinition.TokenType> determineTokenTypes(LexerDefinition lexerDefinition) {
 		return lexerDefinition.getTokenTypeList();
 	}
 
-	private Map<String, Object> createBaseModel() {
+	private Map<String, Object> createBaseModel(Map<String, Object> generatorConfig) {
 		Map<String, Object> model = new HashMap<>();
 		model.put("packageName", generatorConfig.get("packageName"));
 		model.put("lexerName", generatorConfig.get("lexerName"));
 		return model;
 	}
 
-	private SourceFile createSourceFile(String templateName, String sourceFileName, Map<String, Object> model)
-			throws CodeGenerationException {
+	private SourceFile createSourceFile(String templateName, String sourceFileName, Map<String, Object> model,
+			Map<String, Object> generatorConfig) throws CodeGenerationException {
 
 		Template template = determineTemplate(templateName);
 

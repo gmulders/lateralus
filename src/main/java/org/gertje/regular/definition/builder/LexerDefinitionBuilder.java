@@ -7,6 +7,9 @@ import org.gertje.regular.parser.nodes.LexerDefinitionNode;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Builder class that builds a {@link LexerDefinition}, that can be used as input for the lexer generator.
+ */
 public class LexerDefinitionBuilder {
 
 	private List<LexerClassNode> lexerClassNodeList;

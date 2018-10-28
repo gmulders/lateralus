@@ -3,12 +3,16 @@ package ${packageName};
 import java.io.IOException;
 import java.io.Reader;
 
+/**
+ * Implementation of a {@link LexerReader}.
+ */
 public class LexerReaderImpl implements LexerReader {
 
 	private Reader delegate;
 
 	private char[] buffer = new char[8096];
-	private int mark;
+	private int markStart;
+	private int markEnd;
 	private int index;
 	private int end;
 	private int endRead;
@@ -17,6 +21,8 @@ public class LexerReaderImpl implements LexerReader {
 
 	private int currentLineNumber = 1;
 	private int currentColumnNumber = 1;
+	private int endLineNumber;
+	private int endColumnNumber;
 
 	public LexerReaderImpl(Reader delegate) {
 		this.delegate = delegate;
@@ -71,12 +77,22 @@ public class LexerReaderImpl implements LexerReader {
 
 	@Override
 	public String readLexeme() {
-		return new String(buffer, mark, index - mark);
+		index = markEnd;
+		currentLineNumber = endLineNumber;
+		currentColumnNumber = endColumnNumber;
+		return new String(buffer, markStart, markEnd - markStart);
 	}
 
 	@Override
-	public void startLexeme() {
-		mark = index;
+	public void markStart() {
+		markStart = index;
+	}
+
+	@Override
+	public void markEnd() {
+		markEnd = index;
+		endLineNumber = currentLineNumber;
+		endColumnNumber = currentColumnNumber;
 	}
 
 	private void fillBuffer() throws IOException {
@@ -104,13 +120,13 @@ public class LexerReaderImpl implements LexerReader {
 			return;
 		}
 
-		// If the mark is higher then 0, we can shift the contents of the array towards 0.
-		if (mark > 0) {
-			System.arraycopy(buffer, mark, buffer, 0, endRead - mark);
-			index -= mark;
-			end -= mark;
-			endRead -= mark;
-			mark = 0; // mark -= mark;
+		// If the markStart is higher then 0, we can shift the contents of the array towards 0.
+		if (markStart > 0) {
+			System.arraycopy(buffer, markStart, buffer, 0, endRead - markStart);
+			index -= markStart;
+			end -= markStart;
+			endRead -= markStart;
+			markStart = 0; // markStart -= markStart;
 
 			// Check if we have space for at least two chars now.
 			if (endRead <= buffer.length - 2) {
@@ -122,7 +138,7 @@ public class LexerReaderImpl implements LexerReader {
 
 		// Create a buffer that is twice the size of the previous buffer.
 		char[] buffer = new char[this.buffer.length * 2];
-		System.arraycopy(this.buffer, mark, buffer, 0, this.buffer.length);
+		System.arraycopy(this.buffer, markStart, buffer, 0, this.buffer.length);
 		this.buffer = buffer;
 	}
 }

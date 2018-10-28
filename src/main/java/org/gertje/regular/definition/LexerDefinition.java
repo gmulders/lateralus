@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * Abstract representation of a lexer. This is the output of the lexer generator and the input for the code generator.
+ */
 public class LexerDefinition {
 
 	public static class TokenType {

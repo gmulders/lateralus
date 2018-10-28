@@ -1,5 +1,8 @@
 package org.gertje.regular.codegenerator;
 
+/**
+ * Straightforward implementation of a {@link SourceFile}.
+ */
 public class SimpleSourceFile implements SourceFile {
 
 	private String name;

@@ -1,5 +1,8 @@
 package ${packageName};
 
+/**
+ * Exception that can be thrown from a {@link Lexer}.
+ */
 public class LexerException extends Exception {
 
 	private int lineNumber;

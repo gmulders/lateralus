@@ -1,4 +1,4 @@
-package org.gertje.regular.lexer;
+package org.gertje.regular.testlexer;
 
 import java.io.IOException;
 
@@ -37,15 +37,14 @@ public class TestLexer {
 
 	public Token determineNextToken() throws IOException, LexerException {
 
-		reader.startLexeme();
+		reader.markStart();
 
 		int lineNumber = reader.getCurrentLineNumber();
 		int columnNumber = reader.getCurrentColumnNumber();
 
-		boolean match = false;
-
 		// Bring the state to the starting state for the current lexer state.
 		int state = transitions[startState][lexerState];
+		int lastMatchState = -1;
 
 		int t;
 		while ((t = reader.peek()) != -1) {
@@ -58,15 +57,16 @@ public class TestLexer {
 				break;
 			}
 
+			// Remove the code point from the stack.
+			reader.eat();
+
 			state = newState;
 
 			// Check whether the state is an accepting state.
 			if (isEndState[state]) {
-				match = true;
+				lastMatchState = state;
+				reader.markEnd();
 			}
-
-			// Remove the code point from the stack.
-			reader.eat();
 		}
 
 		// There are three reasons for the above loop to end;
@@ -74,8 +74,8 @@ public class TestLexer {
 		// - if there are no more items in the input,
 		// - if we ended in an error state.
 
-		if (match) {
-			TestTokenType tokenType = tokenTypes[state];
+		if (lastMatchState != -1) {
+			TestTokenType tokenType = tokenTypes[lastMatchState];
 			lexerState = tokenType.lexerState();
 			return new Token(lineNumber, columnNumber, reader.readLexeme(), tokenType);
 		} else if (t == -1) {
@@ -85,8 +85,4 @@ public class TestLexer {
 		throw new LexerException("Unexpected codepoint '" + new String(Character.toChars(t)) + "'.",
 				reader.getCurrentLineNumber(), reader.getCurrentColumnNumber());
 	}
-
-
 }
-
-

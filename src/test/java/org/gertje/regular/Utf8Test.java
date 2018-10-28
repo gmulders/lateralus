@@ -66,6 +66,40 @@ public class Utf8Test {
 		// Create the Lexer from the regex parse tree and the interval array.
 		LexerDefinition lexerDefinition = new LexerDefinitionBuilder().build(lexerDefinitionNode);
 
+
+		//digraph finite_state_machine {
+		//	rankdir=LR;
+		//	size="8,5"
+		//	node [shape = none]; "";
+		//	node [shape = doublecircle]; 5
+		//	node [shape = circle];
+		//	"" -> 1
+		//	6 -> 5 [ label = "80..8f" ];
+		//	1 -> 3 [ label = "e0..e0" ];
+		//	6 -> 5 [ label = "90..9f" ];
+		//	6 -> 5 [ label = "a0..bf" ];
+		//	2 -> 6 [ label = "80..8f" ];
+		//	2 -> 6 [ label = "90..9f" ];
+		//	2 -> 6 [ label = "a0..bf" ];
+		//	1 -> 4 [ label = "ed..ed" ];
+		//	8 -> 2 [ label = "80..8f" ];
+		//	8 -> 2 [ label = "90..9f" ];
+		//	8 -> 2 [ label = "a0..bf" ];
+		//	1 -> 5 [ label = "00..7f" ];
+		//	1 -> 6 [ label = "c2..df" ];
+		//	7 -> 2 [ label = "90..9f" ];
+		//	7 -> 2 [ label = "a0..bf" ];
+		//	1 -> 7 [ label = "f0..f0" ];
+		//	4 -> 6 [ label = "80..8f" ];
+		//	4 -> 6 [ label = "90..9f" ];
+		//	1 -> 8 [ label = "f1..f3" ];
+		//	1 -> 9 [ label = "f4..f4" ];
+		//	3 -> 6 [ label = "a0..bf" ];
+		//	1 -> 2 [ label = "e1..ec" ];
+		//	1 -> 2 [ label = "ee..ef" ];
+		//	9 -> 2 [ label = "80..8f" ];
+		//}
+
 	}
 
 

@@ -3,6 +3,9 @@ package ${packageName};
 import java.io.IOException;
 import java.util.Arrays;
 
+/**
+ * Basic {@link Lexer} implementation.
+ */
 public class ${lexerName}Lexer implements Lexer {
 
 	private static final int START_STATE = ${startState};
@@ -109,6 +112,4 @@ public class ${lexerName}Lexer implements Lexer {
 		throw new LexerException("Unexpected codepoint '" + new String(Character.toChars(t)) + "'.",
 				reader.getCurrentLineNumber(), reader.getCurrentColumnNumber());
 	}
-
-
 }

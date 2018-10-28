@@ -1,26 +1,30 @@
 package org.gertje.regular.codegenerator;
 
+import freemarker.cache.TemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateExceptionHandler;
 
 import java.io.IOException;
 
+/**
+ * Abstract base class for a code generator that uses FreeMarker templates.
+ */
 public abstract class AbstractFreeMarkerCodeGenerator implements CodeGenerator {
 
 	private Configuration configuration;
 
-	public AbstractFreeMarkerCodeGenerator() {
-		createConfiguration();
+	public AbstractFreeMarkerCodeGenerator(TemplateLoader templateLoader) {
+		createConfiguration(templateLoader);
 	}
 
 	public AbstractFreeMarkerCodeGenerator(Configuration configuration) {
 		this.configuration = configuration;
 	}
 
-	private void createConfiguration() {
+	private void createConfiguration(TemplateLoader templateLoader) {
 		configuration = new Configuration(Configuration.VERSION_2_3_28);
-		configuration.setClassForTemplateLoading(AbstractFreeMarkerCodeGenerator.class, "/templates");
+		configuration.setTemplateLoader(templateLoader);
 		configuration.setDefaultEncoding("UTF-8");
 		configuration.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
 		configuration.setLogTemplateExceptions(false);

@@ -11,7 +11,6 @@ import org.gertje.regular.parser.visitors.IntervalCollector;
 import org.gertje.regular.parser.visitors.ThompsonConstructor;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -99,8 +98,6 @@ public class LexerDefinitionBuilder {
 
 		Map<LexerDefinition.TokenType, Set<Integer>> newMap = new HashMap<>();
 		acceptingStateTokenTypeMap.forEach((i, t) -> newMap.computeIfAbsent(t, t2 -> new HashSet<>()).add(i));
-
-		newMap.forEach((t, s) -> System.out.println(t.getName() + " " + Arrays.toString(s.toArray())));
 
 		// Create the lexer definition.
 		return createLexerDefinition(dfa, alphabetIntervals, node.getStartLexerStateName());

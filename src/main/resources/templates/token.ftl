@@ -1,5 +1,8 @@
 package ${packageName};
 
+/**
+ * Represents a token (lexeme).
+ */
 public class Token {
 	private int lineNumber;
 	private int columnNumber;
