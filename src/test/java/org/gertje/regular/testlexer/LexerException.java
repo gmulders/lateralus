@@ -1,5 +1,8 @@
-package org.gertje.regular.lexer;
+package org.gertje.regular.testlexer;
 
+/**
+ * Exception that can be thrown while lexing.
+ */
 public class LexerException extends Exception {
 
 	private int lineNumber;
