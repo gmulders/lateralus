@@ -30,23 +30,30 @@ public class DebugUtils {
 
 	public static void printAutomaton(Automaton automaton, int[] alphabetIntervals, int errorState, boolean skipErrorState) {
 
-		String acceptingStates = automaton.getAcceptingStates().stream().map(i -> i - 1).map(Object::toString)
+		String acceptingStates = automaton.getAcceptingStates().stream().map(Object::toString)
 				.collect(Collectors.joining(" "));
 
 		System.out.println("digraph finite_state_machine {\n" +
 				"\trankdir=LR;\n" +
 				"\tsize=\"8,5\"\n" +
-				"\tnode [shape = point]; start;\n" +
+				"\tnode [shape = none]; \"\";\n" +
 				"\tnode [shape = doublecircle]; " + acceptingStates + "\n" +
 				"\tnode [shape = circle];\n" +
-				"\tstart -> 1");
+				"\t\"\" -> " + automaton.getStartState());
 
 		for (Automaton.Transition transition : automaton.getTransitions()) {
 			if (skipErrorState && transition.toState == errorState) {
 				continue;
 			}
-			String input = determineInput(transition.input, alphabetIntervals);
-			System.out.println("\t" + (transition.fromState - 1) + " -> " + (transition.toState - 1) + " [ label = \"" + input + "\" ];");
+
+			String input;
+			if (transition.fromState == automaton.getStartState()) {
+				input = "ls:" + transition.input;
+			} else {
+				input = determineInput(transition.input, alphabetIntervals);
+			}
+
+			System.out.println("\t" + transition.fromState + " -> " + transition.toState + " [ label = \"" + input + "\" ];");
 		}
 
 		System.out.println("}");
