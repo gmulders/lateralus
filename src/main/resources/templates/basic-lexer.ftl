@@ -64,15 +64,14 @@ public class ${lexerName}Lexer implements Lexer {
 	@Override
 	public Token determineNextToken() throws IOException, LexerException {
 
-		reader.startLexeme();
+		reader.markStart();
 
 		int lineNumber = reader.getCurrentLineNumber();
 		int columnNumber = reader.getCurrentColumnNumber();
 
-		boolean match = false;
-
 		// Bring the state to the starting state for the current lexer state.
 		int state = TRANSITIONS[START_STATE + ${stateCount} * lexerState];
+		int lastMatchState = -1;
 
 		int t;
 		while ((t = reader.peek()) != -1) {
@@ -85,15 +84,16 @@ public class ${lexerName}Lexer implements Lexer {
 				break;
 			}
 
+			// Remove the code point from the stack.
+			reader.eat();
+
 			state = newState;
 
 			// Check whether the state is an accepting state.
 			if (IS_END_STATE[state]) {
-				match = true;
+				lastMatchState = state;
+				reader.markEnd();
 			}
-
-			// Remove the code point from the stack.
-			reader.eat();
 		}
 
 		// There are three reasons for the above loop to end;
@@ -101,8 +101,8 @@ public class ${lexerName}Lexer implements Lexer {
 		// - if there are no more items in the input,
 		// - if we ended in an error state.
 
-		if (match) {
-			TokenType tokenType = TOKEN_TYPES[state];
+		if (lastMatchState != -1) {
+			TokenType tokenType = TOKEN_TYPES[lastMatchState];
 			lexerState = tokenType.lexerState();
 			return new Token(lineNumber, columnNumber, reader.readLexeme(), tokenType);
 		} else if (t == -1) {
