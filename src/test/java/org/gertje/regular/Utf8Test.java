@@ -6,7 +6,7 @@ import org.gertje.regular.parser.RegExException;
 import org.gertje.regular.parser.RegExParser;
 import org.gertje.regular.parser.nodes.AbstractRegExNode;
 import org.gertje.regular.parser.nodes.LexerClassNode;
-import org.gertje.regular.parser.nodes.LexerDefinitionNode;
+import org.gertje.regular.parser.nodes.LexerDescriptionNode;
 import org.gertje.regular.parser.nodes.LexerTokenNode;
 import org.junit.jupiter.api.Test;
 
@@ -61,10 +61,10 @@ public class Utf8Test {
 		lexerClassNode.setLexerTokenList(Arrays.asList(lexerTokenNode));
 		lexerClassNode.setName("DEFAULT");
 
-		LexerDefinitionNode lexerDefinitionNode = new LexerDefinitionNode(Arrays.asList(lexerClassNode), "DEFAULT");
+		LexerDescriptionNode lexerDescriptionNode = new LexerDescriptionNode(Arrays.asList(lexerClassNode), "DEFAULT");
 
 		// Create the Lexer from the regex parse tree and the interval array.
-		LexerDefinition lexerDefinition = new LexerDefinitionBuilder().build(lexerDefinitionNode);
+		LexerDefinition lexerDefinition = new LexerDefinitionBuilder().build(lexerDescriptionNode);
 
 
 		//digraph finite_state_machine {

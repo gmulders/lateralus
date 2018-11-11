@@ -2,7 +2,7 @@ package org.gertje.regular.definition.builder;
 
 import org.gertje.regular.definition.LexerDefinition;
 import org.gertje.regular.parser.nodes.LexerClassNode;
-import org.gertje.regular.parser.nodes.LexerDefinitionNode;
+import org.gertje.regular.parser.nodes.LexerDescriptionNode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +29,7 @@ public class LexerDefinitionBuilder {
 	}
 
 	public LexerDefinition build() {
-		LexerDefinitionNode lexerDefinitionNode = new LexerDefinitionNode(lexerClassNodeList, lexerStartStateName);
-		return new org.gertje.regular.definition.LexerDefinitionBuilder().build(lexerDefinitionNode);
+		LexerDescriptionNode lexerDescriptionNode = new LexerDescriptionNode(lexerClassNodeList, lexerStartStateName);
+		return new org.gertje.regular.definition.LexerDefinitionBuilder().build(lexerDescriptionNode);
 	}
 }

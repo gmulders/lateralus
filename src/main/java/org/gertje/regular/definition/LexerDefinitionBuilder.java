@@ -5,7 +5,7 @@ import org.gertje.regular.automaton.Automaton;
 import org.gertje.regular.automaton.AutomatonDeterminizer;
 import org.gertje.regular.automaton.AutomatonMinimizer;
 import org.gertje.regular.parser.nodes.LexerClassNode;
-import org.gertje.regular.parser.nodes.LexerDefinitionNode;
+import org.gertje.regular.parser.nodes.LexerDescriptionNode;
 import org.gertje.regular.parser.nodes.LexerTokenNode;
 import org.gertje.regular.parser.visitors.IntervalCollector;
 import org.gertje.regular.parser.visitors.ThompsonConstructor;
@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Builds a lexer definition ({@link LexerDefinition}) given a lexer definition node ({@link LexerDefinitionNode}).
+ * Builds a lexer definition ({@link LexerDefinition}) given a lexer definition node ({@link LexerDescriptionNode}).
  *
  * TODO: Find more suitable name.
  */
@@ -66,7 +66,7 @@ public class LexerDefinitionBuilder {
 	 * @param node The lexer definition node to build the lexer definition from.
 	 * @return The lexer definition.
 	 */
-	public LexerDefinition build(LexerDefinitionNode node) {
+	public LexerDefinition build(LexerDescriptionNode node) {
 
 		// Determine the alphabet.
 		int[] alphabetIntervals = IntervalCollector.collectIntervals(node);

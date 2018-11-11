@@ -28,14 +28,18 @@ public class Main {
 
 		final LexerDefinition lexerDefinition;
 		try {
-			lexerDefinition = createSimpleExpressionLexer();
+			lexerDefinition = createLexerDef();
 		} catch (RegExException e) {
 			throw new CodeGenerationException("Could not build lexer definition:", e);
 		}
 
 		CodeGenerator generator = createCodeGenerator();
 
-		Collection<SourceFile> sourceFiles = generator.generate(lexerDefinition);
+		Map<String, Object> generatorConfig = new HashMap<>();
+		generatorConfig.put("packageName", "org.gertje.regular.lexer");
+		generatorConfig.put("lexerName", "LexerDefinition");
+
+		Collection<SourceFile> sourceFiles = generator.generate(lexerDefinition, generatorConfig);
 
 		for (SourceFile sourceFile : sourceFiles) {
 			save(sourceFile);
@@ -43,11 +47,7 @@ public class Main {
 	}
 
 	private CodeGenerator createCodeGenerator() {
-		Map<String, Object> generatorConfig = new HashMap<>();
-		generatorConfig.put("packageName", "bla");
-		generatorConfig.put("lexerName", "Basic");
-
-		return new BasicLexerGenerator(generatorConfig);
+		return new BasicLexerGenerator();
 	}
 
 	private void save(SourceFile sourceFile) throws IOException {
@@ -62,6 +62,28 @@ public class Main {
 
 		Files.write(path,
 				sourceFile.getContents().getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE);
+	}
+
+	private LexerDefinition createLexerDef() throws RegExException {
+		return new LexerDefinitionBuilder()
+				.lexerStartStateName("DEFAULT")
+				.startLexerClass("DEFAULT")
+					.addLexerToken("WHITE_SPACE", "( |\\t)+", "DEFAULT")
+					.addLexerToken("LEXER_CLASS", "([a-zA-Z_])[a-zA-Z0-9_]*", "DEFAULT")
+					.addLexerToken("TOKEN_NAME", "<([a-zA-Z_])[a-zA-Z0-9_]*>", "DEFAULT")
+					.addLexerToken("REGEX_START", "'", "REGEX")
+					.addLexerToken("NEXT_STATE", "->", "DEFAULT")
+				.end()
+				.startLexerClass("REGEX")
+					.addLexerToken("REGEX_END", "'", "DEFAULT")
+					.addLexerToken("REGEX_PART", "[^'\\\\]*", "REGEX")
+					.addLexerToken("REGEX_SINGLE_QUOTE", "\\\\'", "REGEX")
+					.addLexerToken("REGEX_TAB", "\\\\t", "REGEX")
+					.addLexerToken("REGEX_NEW_LINE", "\\\\n", "REGEX")
+					.addLexerToken("REGEX_CARRIAGE_RETURN", "\\\\r", "REGEX")
+					.addLexerToken("REGEX_BACKSLASH", "\\\\\\\\", "REGEX")
+				.end()
+				.build();
 	}
 
 	private LexerDefinition createSimpleExpressionLexer() throws RegExException {

@@ -6,7 +6,7 @@ import org.gertje.regular.parser.nodes.AbstractRegExNode;
 import org.gertje.regular.parser.nodes.CharSetNode;
 import org.gertje.regular.parser.nodes.ConcatNode;
 import org.gertje.regular.parser.nodes.LexerClassNode;
-import org.gertje.regular.parser.nodes.LexerDefinitionNode;
+import org.gertje.regular.parser.nodes.LexerDescriptionNode;
 import org.gertje.regular.parser.nodes.LexerTokenNode;
 import org.gertje.regular.parser.nodes.OptionalNode;
 import org.gertje.regular.parser.nodes.PlusNode;
@@ -24,7 +24,7 @@ public class IntervalCollector implements RegExNodeVisitor<Void, VisitingExcepti
 		intervalList = new ArrayList<>();
 	}
 
-	public static int[] collectIntervals(LexerDefinitionNode node) {
+	public static int[] collectIntervals(LexerDescriptionNode node) {
 		IntervalCollector collector  = new IntervalCollector();
 
 		for (LexerClassNode lexerClassNode : node.getLexerClassNodeList()) {
