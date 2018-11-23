@@ -5,11 +5,13 @@ import org.gertje.regular.codegenerator.CodeGenerationException;
 import org.gertje.regular.codegenerator.CodeGenerator;
 import org.gertje.regular.codegenerator.SourceFile;
 import org.gertje.regular.definition.LexerDefinition;
-import org.gertje.regular.definition.builder.LexerDefinitionBuilder;
-import org.gertje.regular.parser.RegExException;
+import org.gertje.regular.parser.description.LexerDescriptionParser;
 import org.gertje.regular.parser.description.ParserException;
+import org.gertje.regular.parser.nodes.LexerDescriptionNode;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -57,27 +59,8 @@ public class Main {
 	}
 
 	private LexerDefinition createLexerDef() throws ParserException {
-		try {
-			return new LexerDefinitionBuilder()
-					.lexerStartStateName("DEFAULT")
-					.startLexerClass("DEFAULT")
-						.addLexerToken("NEW_LINE", "\\r\\n|\\r|\\n", "DEFAULT")
-						.addLexerToken("WHITE_SPACE", "( |\\t)+", "DEFAULT")
-						.addLexerToken("LEXER_CLASS", "([a-zA-Z_])[a-zA-Z0-9_]*", "DEFAULT")
-						.addLexerToken("TOKEN_NAME", "<([a-zA-Z_])[a-zA-Z0-9_]*>", "DEFAULT")
-						.addLexerToken("REGEX_START", "'", "REGEX")
-						.addLexerToken("NEXT_STATE", "->", "DEFAULT")
-					.end()
-					.startLexerClass("REGEX")
-						.addLexerToken("REGEX_END", "'", "DEFAULT")
-						.addLexerToken("REGEX_PART", "[^'\\\\]*", "REGEX")
-						.addLexerToken("REGEX_SINGLE_QUOTE", "\\\\\\'", "REGEX")
-						.addLexerToken("REGEX_DOUBLE_BACKSLASH", "\\\\\\\\", "REGEX")
-						.addLexerToken("REGEX_BACKSLASH", "\\\\", "REGEX")
-					.end()
-					.build();
-		} catch (RegExException e) {
-			throw new ParserException("An exception occurred during parsing.", e);
-		}
+		Reader reader = new InputStreamReader(Main.class.getClassLoader().getResourceAsStream("description.lex"));
+		LexerDescriptionNode node = new LexerDescriptionParser(reader).parse();
+		return new org.gertje.regular.definition.LexerDefinitionBuilder().build(node);
 	}
 }
