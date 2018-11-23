@@ -62,6 +62,9 @@ public class LexerReaderImpl implements LexerReader {
 				}
 				skipLF = false;
 				break;
+			default:
+				// Default do nothing.
+				break;
 		}
 	}
 
@@ -126,7 +129,7 @@ public class LexerReaderImpl implements LexerReader {
 			index -= markStart;
 			end -= markStart;
 			endRead -= markStart;
-			markStart = 0; // markStart -= markStart;
+			markStart = 0; // markStart -= markStart
 
 			// Check if we have space for at least two chars now.
 			if (endRead <= buffer.length - 2) {
@@ -137,8 +140,8 @@ public class LexerReaderImpl implements LexerReader {
 		// If we get here we still do not have enough space.
 
 		// Create a buffer that is twice the size of the previous buffer.
-		char[] buffer = new char[this.buffer.length * 2];
-		System.arraycopy(this.buffer, markStart, buffer, 0, this.buffer.length);
-		this.buffer = buffer;
+		char[] newBuffer = new char[this.buffer.length * 2];
+		System.arraycopy(this.buffer, markStart, newBuffer, 0, this.buffer.length);
+		this.buffer = newBuffer;
 	}
 }
