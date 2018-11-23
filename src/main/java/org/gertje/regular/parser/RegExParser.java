@@ -1,10 +1,10 @@
 package org.gertje.regular.parser;
 
 import org.gertje.regular.parser.nodes.AbstractRegExNode;
+import org.gertje.regular.parser.nodes.CharSetNode;
 import org.gertje.regular.parser.nodes.ConcatNode;
 import org.gertje.regular.parser.nodes.OptionalNode;
 import org.gertje.regular.parser.nodes.PlusNode;
-import org.gertje.regular.parser.nodes.CharSetNode;
 import org.gertje.regular.parser.nodes.StarNode;
 import org.gertje.regular.parser.nodes.UnionNode;
 
@@ -138,7 +138,7 @@ public class RegExParser {
 					next();
 					negate = true;
 				}
-				List<Interval> intervalList = characterclass();
+				List<Interval> intervalList = characterClass();
 				expect(']');
 
 				// Merge overlapping ranges.
@@ -155,7 +155,7 @@ public class RegExParser {
 		}
 	}
 
-	private List<Interval> characterclass() throws RegExException {
+	private List<Interval> characterClass() throws RegExException {
 		// characterclass = epsilon
 		//                  characterrange
 		//                  characterrange characterclass
@@ -163,22 +163,22 @@ public class RegExParser {
 		List<Interval> intervalList = new ArrayList<>();
 
 		while (peek() != ']') {
-			intervalList.add(characterrange());
+			intervalList.add(characterRange());
 		}
 
 		return intervalList;
 	}
 
-	private Interval characterrange() throws RegExException {
+	private Interval characterRange() throws RegExException {
 		// characterrange = begincharacter
 		//                  begincharacter - endcharacter
 
-		int start = begincharacter();
+		int start = beginCharacter();
 		int end = start;
 
 		if (peek() == '-') {
 			next();
-			end = endcharacter();
+			end = endCharacter();
 		}
 
 		if (start <= end) {
@@ -188,12 +188,12 @@ public class RegExParser {
 		}
 	}
 
-	private int begincharacter() throws RegExException {
+	private int beginCharacter() throws RegExException {
 		// begincharacter = character
 		return character();
 	}
 
-	private int endcharacter() throws RegExException {
+	private int endCharacter() throws RegExException {
 		// endcharacter = character
 		return character();
 	}
@@ -225,14 +225,14 @@ public class RegExParser {
 
 	private int codePoint() throws RegExException {
 		// codepoint = hexnumber
-		int codePoint = hexnumber();
+		int codePoint = hexNumber();
 
 		// The code point should not be bigger then MAX_UNICODE. From our definition, it follows that it cannot be
 		// smaller then MIN_UNICODE.
 		return Math.min(codePoint, MAX_UNICODE);
 	}
 
-	private int hexnumber() throws RegExException {
+	private int hexNumber() throws RegExException {
 		// hexnumber = hexdigit
 		//           = hexdigit hexnumber
 
@@ -240,13 +240,13 @@ public class RegExParser {
 
 		for (int i = 0; i < 4; i++) {
 			number = number << 4;
-			number += hexdigit();
+			number += hexDigit();
 		}
 
 		return number;
 	}
 
-	private int hexdigit() throws RegExException {
+	private int hexDigit() throws RegExException {
 		// hexdigit = 0
 		//            1
 		//            ...
@@ -267,7 +267,7 @@ public class RegExParser {
 
 	private List<Interval> merge(List<Interval> intervalList) {
 		List<Interval> newIntervalList = new ArrayList<>();
-		if(intervalList == null || intervalList.size() == 0) {
+		if(intervalList == null || intervalList.isEmpty()) {
 			return newIntervalList;
 		}
 
@@ -290,7 +290,7 @@ public class RegExParser {
 
 	private List<Interval> negate(List<Interval> intervalList) {
 		List<Interval> newIntervalList = new ArrayList<>();
-		if(intervalList == null || intervalList.size() == 0) {
+		if(intervalList == null || intervalList.isEmpty()) {
 			newIntervalList.add(new Interval(MIN_UNICODE, MAX_UNICODE));
 			return newIntervalList;
 		}
