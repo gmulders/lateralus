@@ -57,7 +57,7 @@ public class ${lexerName}Lexer implements Lexer {
 
 	private int lexerState = ${startLexerState};
 
-	public ${lexerName}Lexer(LexerReader reader) {
+	public ${lexerName}Lexer(final LexerReader reader) {
 		this.reader = reader;
 	}
 
