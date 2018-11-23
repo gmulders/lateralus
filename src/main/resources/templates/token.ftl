@@ -1,5 +1,7 @@
 package ${packageName};
 
+import java.util.Arrays;
+
 /**
  * Represents a token (lexeme).
  */
@@ -14,6 +16,25 @@ public class Token {
 		this.columnNumber = columnNumber;
 		this.value = value;
 		this.tokenType = tokenType;
+	}
+
+	/**
+	 * Checks whether {@code this} {@link Token} is of the given {@link TokenType}.
+	 * @param tokenType The {@link TokenType} to check against
+	 * @return {@code true} if {@code this} {@link Token} is of the given {@link TokenType}.
+	 */
+	public boolean is(TokenType tokenType) {
+		return this.tokenType == tokenType;
+	}
+
+	/**
+	 * Checks whether {@code this} {@link Token} is any of the given {@link TokenType}s.
+	 * @param tokenTypes The {@link TokenType}s to check against
+	 * @return {@code true} if {@code this} {@link Token} is any of the given {@link TokenType}s.
+	 */
+	public boolean is(TokenType... tokenTypes) {
+		return Arrays.stream(tokenTypes)
+			.anyMatch(this::is);
 	}
 
 	public int getLineNumber() {

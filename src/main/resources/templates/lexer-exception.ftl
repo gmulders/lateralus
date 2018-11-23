@@ -5,11 +5,18 @@ package ${packageName};
  */
 public class LexerException extends Exception {
 
-	private int lineNumber;
-	private int columnNumber;
+	private final int lineNumber;
+	private final int columnNumber;
 
-	public LexerException(String message, int currentLineNumber, int currentColumnNumber) {
+	public LexerException(final String message, final int currentLineNumber, final int currentColumnNumber) {
 		super(message);
+		this.columnNumber = currentColumnNumber;
+		this.lineNumber = currentLineNumber;
+	}
+
+	public LexerException(final String message, final int currentLineNumber, final int currentColumnNumber,
+			final Throwable cause) {
+		super(message, cause);
 		this.columnNumber = currentColumnNumber;
 		this.lineNumber = currentLineNumber;
 	}

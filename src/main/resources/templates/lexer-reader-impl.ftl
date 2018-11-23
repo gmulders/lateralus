@@ -8,7 +8,7 @@ import java.io.Reader;
  */
 public class LexerReaderImpl implements LexerReader {
 
-	private Reader delegate;
+	private final Reader delegate;
 
 	private char[] buffer = new char[8096];
 	private int markStart;
@@ -24,7 +24,7 @@ public class LexerReaderImpl implements LexerReader {
 	private int endLineNumber;
 	private int endColumnNumber;
 
-	public LexerReaderImpl(Reader delegate) {
+	public LexerReaderImpl(final Reader delegate) {
 		this.delegate = delegate;
 	}
 

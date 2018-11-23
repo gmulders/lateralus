@@ -8,9 +8,9 @@ public enum TokenType {
 <#list tokenTypes as tokenType>	${tokenType.name}(${tokenType.lexerClass + 1})<#sep>,
 </#list>;
 
-	private int lexerState;
+	private final int lexerState;
 
-	TokenType(int lexerState) {
+	TokenType(final int lexerState) {
 		this.lexerState = lexerState;
 	}
 

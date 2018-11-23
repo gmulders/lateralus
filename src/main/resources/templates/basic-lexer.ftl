@@ -10,7 +10,7 @@ public class ${lexerName}Lexer implements Lexer {
 
 	private static final int START_STATE = ${startState};
 
-	private final int ERROR_STATE = ${errorState};
+	private static final int ERROR_STATE = ${errorState};
 
 	private static final boolean[] IS_END_STATE = new boolean[] { ${isEndState} };
 
@@ -62,8 +62,16 @@ public class ${lexerName}Lexer implements Lexer {
 	}
 
 	@Override
-	public Token determineNextToken() throws IOException, LexerException {
+	public Token nextToken() throws LexerException {
+		try {
+			return determineNextToken();
+		} catch (IOException e) {
+			throw new LexerException("An exception has occurred while reading.", reader.getCurrentLineNumber(),
+					reader.getCurrentColumnNumber(), e);
+		}
+	}
 
+	private Token determineNextToken() throws IOException, LexerException {
 		reader.markStart();
 
 		int lineNumber = reader.getCurrentLineNumber();
@@ -96,7 +104,7 @@ public class ${lexerName}Lexer implements Lexer {
 			}
 		}
 
-		// There are three reasons for the above loop to end;
+		// There are three reasons for the above loop to end:
 		// - if a match was found,
 		// - if there are no more items in the input,
 		// - if we ended in an error state.
