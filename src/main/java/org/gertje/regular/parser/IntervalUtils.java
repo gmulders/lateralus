@@ -2,7 +2,14 @@ package org.gertje.regular.parser;
 
 import java.util.Arrays;
 
+/**
+ * Util class containing functions on intervals.
+ */
 public class IntervalUtils {
+
+	private IntervalUtils() {
+		// Private constructor to hide the implicit public one.
+	}
 
 	/**
 	 * Splits intervals in a list of intervals into smaller non overlapping intervals such that every original interval
@@ -20,7 +27,7 @@ public class IntervalUtils {
 	 * @param intervalArray The array with intervals to be split
 	 * @return An array that holds the new intervals
 	 */
-	public static int[] splitIntervals(int[] intervalArray) {
+	public static int[] splitIntervals(final int[] intervalArray) {
 		// To encode the difference between the start and the end of an interval, we multiply the integer by 2 and add 1
 		// if it is the end of an interval (thus when the index is odd).
 		for (int i = 0; i < intervalArray.length; i++) {
@@ -32,8 +39,8 @@ public class IntervalUtils {
 
 		// The maximal number of splitted intervals is 2n-1.
 		// Create an array that can hold that much intervals.
-		int n = intervalArray.length >> 1;
-		int[] newIntervalArray = new int[2*(2*n-1)];
+		final int n = intervalArray.length >> 1;
+		final int[] newIntervalArray = new int[2*(2*n-1)];
 
 		// The current interval (overlapping) depth
 		int depth = 0;
@@ -47,7 +54,6 @@ public class IntervalUtils {
 
 		// For every int in the set, we perform one or more actions.
 		for (int item : intervalArray) {
-//			System.out.println(item + " - " + (item >> 1));
 
 			int point = item >> 1;
 			if ((item & 1) == 0) {
@@ -108,15 +114,22 @@ public class IntervalUtils {
 		return Arrays.copyOf(newIntervalArray, i);
 	}
 
-
+	/**
+	 * Finds an array of indices of the intervals that are within the given range.
+	 * @param start The start of all intervals to look for
+	 * @param end The end of all intervals to look for
+	 * @param intervalArray The array containing the intervals. Every even index holds the start of an interval, the
+	 *                      following odd index holds the end of that interval.
+	 * @return An array with the list of indices that define all intervals within the given range.
+	 */
 	public static int[] findSubIntervals(int start, int end, int[] intervalArray) {
-		int[] subIntervalArray = new int[intervalArray.length / 2];
+		final int[] subIntervalArray = new int[intervalArray.length / 2];
 
 		int i = 0;
 
 		// Find the index of the start of the interval. In the case that the start and end of an interval are the same
-		// number, the binary search method might find the index of the end of that interval instead the start index. To
-		// fix this we set the lowest bit to 0 (since the start index is always even).
+		// number, the binary search method might find the index of the end of that interval instead the index of the
+		// start. To fix this we set the lowest bit to 0 (since the start index is always even).
 		int subIntervalStartIndex = Arrays.binarySearch(intervalArray, start) & ~1;
 
 		subIntervalArray[i++] = subIntervalStartIndex >> 1;

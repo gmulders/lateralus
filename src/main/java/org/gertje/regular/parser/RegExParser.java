@@ -265,7 +265,7 @@ public class RegExParser {
 		}
 	}
 
-	private List<Interval> merge(List<Interval> intervalList) {
+	private static List<Interval> merge(List<Interval> intervalList) {
 		List<Interval> newIntervalList = new ArrayList<>();
 		if(intervalList == null || intervalList.isEmpty()) {
 			return newIntervalList;
@@ -288,7 +288,7 @@ public class RegExParser {
 		return newIntervalList;
 	}
 
-	private List<Interval> negate(List<Interval> intervalList) {
+	private static List<Interval> negate(List<Interval> intervalList) {
 		List<Interval> newIntervalList = new ArrayList<>();
 		if(intervalList == null || intervalList.isEmpty()) {
 			newIntervalList.add(new Interval(MIN_UNICODE, MAX_UNICODE));

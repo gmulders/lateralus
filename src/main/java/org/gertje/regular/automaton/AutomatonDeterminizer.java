@@ -281,17 +281,14 @@ public class AutomatonDeterminizer {
 		return Arrays.copyOf(stateSet, i);
 	}
 
-	private boolean containsState(int[] left, Set<Integer> right) {
-
+	private static boolean containsState(int[] left, Set<Integer> right) {
 		for (int i : left) {
 			if (right.contains(i)) {
 				return true;
 			}
 		}
-
 		return false;
 	}
-
 
 	public Map<Integer, Set<Integer>> getNewStateOldStateMapping() {
 		return newStateOldStateMapping;

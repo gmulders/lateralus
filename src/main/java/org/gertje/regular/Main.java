@@ -5,6 +5,7 @@ import org.gertje.regular.codegenerator.CodeGenerationException;
 import org.gertje.regular.codegenerator.CodeGenerator;
 import org.gertje.regular.codegenerator.SourceFile;
 import org.gertje.regular.definition.LexerDefinition;
+import org.gertje.regular.definition.LexerDefinitionBuilder;
 import org.gertje.regular.parser.description.LexerDescriptionParser;
 import org.gertje.regular.parser.description.ParserException;
 import org.gertje.regular.parser.nodes.LexerDescriptionNode;
@@ -27,7 +28,7 @@ public class Main {
 		new Main().run();
 	}
 
-	public void run() throws CodeGenerationException, ParserException {
+	private void run() throws CodeGenerationException, ParserException {
 
 		final LexerDefinition lexerDefinition = createLexerDef();
 
@@ -52,15 +53,15 @@ public class Main {
 		return new BasicLexerGenerator();
 	}
 
-	private void save(SourceFile sourceFile) throws IOException {
-		Path path = Paths.get("target/generated-sources/main/" + sourceFile.getName());
+	private void save(final SourceFile sourceFile) throws IOException {
+		final Path path = Paths.get("target/generated-sources/main/" + sourceFile.getName());
 		Files.createDirectories(path.getParent());
 		Files.write(path, sourceFile.getContents().getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE);
 	}
 
 	private LexerDefinition createLexerDef() throws ParserException {
-		Reader reader = new InputStreamReader(Main.class.getClassLoader().getResourceAsStream("description.lex"));
-		LexerDescriptionNode node = new LexerDescriptionParser(reader).parse();
-		return new org.gertje.regular.definition.LexerDefinitionBuilder().build(node);
+		final Reader reader = new InputStreamReader(Main.class.getClassLoader().getResourceAsStream("description.lex"));
+		final LexerDescriptionNode node = new LexerDescriptionParser(reader).parse();
+		return new LexerDefinitionBuilder().build(node);
 	}
 }

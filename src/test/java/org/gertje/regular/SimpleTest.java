@@ -1,9 +1,5 @@
 package org.gertje.regular;
 
-//import bla.BasicLexer;
-//import bla.LexerReaderImpl;
-//import bla.TokenType;
-
 import org.gertje.regular.definition.LexerDefinition;
 import org.gertje.regular.definition.builder.LexerDefinitionBuilder;
 import org.gertje.regular.parser.RegExException;

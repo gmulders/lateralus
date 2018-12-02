@@ -29,7 +29,7 @@ public class LexerDefinitionBuilder {
 	}
 
 	public LexerDefinition build() {
-		LexerDescriptionNode lexerDescriptionNode = new LexerDescriptionNode(lexerClassNodeList, lexerStartStateName);
+		final LexerDescriptionNode lexerDescriptionNode = new LexerDescriptionNode(lexerClassNodeList, lexerStartStateName);
 		return new org.gertje.regular.definition.LexerDefinitionBuilder().build(lexerDescriptionNode);
 	}
 }

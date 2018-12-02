@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Builds a lexer definition ({@link LexerDefinition}) given a lexer definition node ({@link LexerDescriptionNode}).
+ * Builds a lexer definition ({@link LexerDefinition}) given a lexer description node ({@link LexerDescriptionNode}).
  *
  * TODO: Find more suitable name.
  */
@@ -57,9 +57,6 @@ public class LexerDefinitionBuilder {
 	 * The number of classes in the lexer.
 	 */
 	private int nrOfClasses;
-
-	public LexerDefinitionBuilder() {
-	}
 
 	/**
 	 * Builds a lexer definition.

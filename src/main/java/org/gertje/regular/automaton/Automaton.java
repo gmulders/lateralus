@@ -12,7 +12,7 @@ import java.util.Set;
  * Automaton) triggers the transition between states.
  * <p>
  * In this implementation every state is represented by an integer.
- * To transition between states we use (Unicode) code points. // TODO Dit klopt niet...
+ * To transition between states we use a positive integer as input or {@code -1} for the epsilon transition.
  */
 public class Automaton {
 
@@ -26,24 +26,24 @@ public class Automaton {
 		/**
 		 * The state to transition from.
 		 */
-		public int fromState;
+		public final int fromState;
 
 		/**
 		 * The state to transition to.
 		 */
-		public int toState;
+		public final int toState;
 
 		/**
 		 * The input for this transition. The input -1 is the epsilon.
 		 */
-		public int input;
+		public final int input;
 
 		/**
 		 * Constructor.
 		 * @param toState The state to transition to.
 		 * @param input The input for this transition.
 		 */
-		public Transition(int fromState, int toState, int input) {
+		public Transition(final int fromState, final int toState, final int input) {
 			this.fromState = fromState;
 			this.toState = toState;
 			this.input = input;

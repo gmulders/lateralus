@@ -10,18 +10,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Builder for lexer class nodes. Can be used from a {@link LexerDefinitionBuilder}
+ * Builder for lexer class nodes. Can be used from a {@link LexerDefinitionBuilder}.
  */
 public class LexerClassNodeBuilder {
 
-	private LexerDefinitionBuilder parent;
-	private List<LexerClassNode> lexerClassNodeList;
-	private String name;
+	private final LexerDefinitionBuilder parent;
+	private final List<LexerClassNode> lexerClassNodeList;
+	private final String name;
 
 	private List<LexerTokenNode> lexerTokenNodeList;
 
-	public LexerClassNodeBuilder(LexerDefinitionBuilder parent, List<LexerClassNode> lexerClassNodeList,
-			String name) {
+	public LexerClassNodeBuilder(final LexerDefinitionBuilder parent, final List<LexerClassNode> lexerClassNodeList,
+			final String name) {
 		this.parent = parent;
 		this.lexerClassNodeList = lexerClassNodeList;
 		this.name = name;
@@ -36,9 +36,10 @@ public class LexerClassNodeBuilder {
 	 * @param className The name of the lexer class that the lexer should transition to after a match of this type.
 	 * @return The current instance of this class, so that this method can be chained.
 	 */
-	public LexerClassNodeBuilder addLexerToken(String name, String regex, String className) throws RegExException {
-		AbstractRegExNode node = new RegExParser(regex).parse();
-		LexerTokenNode lexerTokenNode = new LexerTokenNode();
+	public LexerClassNodeBuilder addLexerToken(final String name, final String regex, final String className)
+			throws RegExException {
+		final AbstractRegExNode node = new RegExParser(regex).parse();
+		final LexerTokenNode lexerTokenNode = new LexerTokenNode();
 		lexerTokenNode.setName(name);
 		lexerTokenNode.setRegEx(node);
 		lexerTokenNode.setResultClassName(className);
@@ -53,7 +54,7 @@ public class LexerClassNodeBuilder {
 	 * @return the parent {@link LexerClassNodeBuilder}
 	 */
 	public LexerDefinitionBuilder end() {
-		LexerClassNode lexerClassNode = new LexerClassNode();
+		final LexerClassNode lexerClassNode = new LexerClassNode();
 		lexerClassNode.setName(name);
 		lexerClassNode.setLexerTokenList(lexerTokenNodeList);
 		lexerClassNodeList.add(lexerClassNode);
