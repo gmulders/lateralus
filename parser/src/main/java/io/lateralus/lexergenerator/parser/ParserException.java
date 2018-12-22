@@ -1,6 +1,6 @@
-package io.lateralus.lexergenerator.core.parser.description;
+package io.lateralus.lexergenerator.parser;
 
-import io.lateralus.lexergenerator.core.parser.description.lexer.Token;
+import io.lateralus.lexergenerator.parser.lexer.Token;
 
 /**
  * An exception that can be thrown from the {@link LexerDescriptionParser}.

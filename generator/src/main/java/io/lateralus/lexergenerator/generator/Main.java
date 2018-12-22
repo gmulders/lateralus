@@ -5,9 +5,9 @@ import io.lateralus.lexergenerator.core.codegenerator.CodeGenerator;
 import io.lateralus.lexergenerator.core.codegenerator.SourceFile;
 import io.lateralus.lexergenerator.core.definition.LexerDefinition;
 import io.lateralus.lexergenerator.core.definition.LexerDefinitionBuilder;
-import io.lateralus.lexergenerator.core.parser.description.LexerDescriptionParser;
-import io.lateralus.lexergenerator.core.parser.description.ParserException;
 import io.lateralus.lexergenerator.core.parser.nodes.LexerDescriptionNode;
+import io.lateralus.lexergenerator.parser.LexerDescriptionParser;
+import io.lateralus.lexergenerator.parser.ParserException;
 
 import java.io.IOException;
 import java.io.InputStreamReader;

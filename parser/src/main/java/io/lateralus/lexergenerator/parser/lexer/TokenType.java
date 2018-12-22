@@ -1,4 +1,4 @@
-package io.lateralus.lexergenerator.core.parser.description.lexer;
+package io.lateralus.lexergenerator.parser.lexer;
 
 /**
  * Enum containing the possible token types.

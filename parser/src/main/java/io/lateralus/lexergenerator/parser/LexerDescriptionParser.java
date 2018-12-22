@@ -1,18 +1,18 @@
-package io.lateralus.lexergenerator.core.parser.description;
+package io.lateralus.lexergenerator.parser;
 
 import io.lateralus.lexergenerator.core.parser.RegExException;
 import io.lateralus.lexergenerator.core.parser.RegExParser;
-import io.lateralus.lexergenerator.core.parser.description.lexer.Lexer;
-import io.lateralus.lexergenerator.core.parser.description.lexer.LexerDescriptionLexer;
-import io.lateralus.lexergenerator.core.parser.description.lexer.LexerException;
-import io.lateralus.lexergenerator.core.parser.description.lexer.LexerReader;
-import io.lateralus.lexergenerator.core.parser.description.lexer.LexerReaderImpl;
-import io.lateralus.lexergenerator.core.parser.description.lexer.Token;
-import io.lateralus.lexergenerator.core.parser.description.lexer.TokenType;
 import io.lateralus.lexergenerator.core.parser.nodes.AbstractRegExNode;
 import io.lateralus.lexergenerator.core.parser.nodes.LexerClassNode;
 import io.lateralus.lexergenerator.core.parser.nodes.LexerDescriptionNode;
 import io.lateralus.lexergenerator.core.parser.nodes.LexerTokenNode;
+import io.lateralus.lexergenerator.parser.lexer.Lexer;
+import io.lateralus.lexergenerator.parser.lexer.LexerDescriptionLexer;
+import io.lateralus.lexergenerator.parser.lexer.LexerException;
+import io.lateralus.lexergenerator.parser.lexer.LexerReader;
+import io.lateralus.lexergenerator.parser.lexer.LexerReaderImpl;
+import io.lateralus.lexergenerator.parser.lexer.Token;
+import io.lateralus.lexergenerator.parser.lexer.TokenType;
 
 import java.io.Reader;
 import java.util.ArrayList;

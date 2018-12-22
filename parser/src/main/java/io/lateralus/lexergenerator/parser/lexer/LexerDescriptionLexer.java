@@ -1,4 +1,4 @@
-package io.lateralus.lexergenerator.core.parser.description.lexer;
+package io.lateralus.lexergenerator.parser.lexer;
 
 /**
  * A {@link Lexer} implementation that handles the escaping in the regular expression.
