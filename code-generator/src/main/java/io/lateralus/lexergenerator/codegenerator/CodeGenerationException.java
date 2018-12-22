@@ -1,4 +1,4 @@
-package io.lateralus.lexergenerator.core.codegenerator;
+package io.lateralus.lexergenerator.codegenerator;
 
 /**
  * Exception that can be thrown from the code generation.

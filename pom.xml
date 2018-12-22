@@ -11,7 +11,7 @@
 
 	<modules>
 		<module>core</module>
-		<module>generator</module>
+		<module>code-generator</module>
 		<module>parser</module>
 	</modules>
 

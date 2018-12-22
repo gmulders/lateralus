@@ -1,18 +1,18 @@
-package io.lateralus.lexergenerator.generator;
+package io.lateralus.lexergenerator.codegenerator.simple;
 
 import freemarker.cache.TemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateExceptionHandler;
-import io.lateralus.lexergenerator.core.codegenerator.CodeGenerationException;
-import io.lateralus.lexergenerator.core.codegenerator.CodeGenerator;
+import io.lateralus.lexergenerator.codegenerator.CodeGenerationException;
+import io.lateralus.lexergenerator.codegenerator.CodeGenerator;
 
 import java.io.IOException;
 
 /**
  * Abstract base class for a code generator that uses FreeMarker templates.
  */
-public abstract class AbstractFreeMarkerCodeGenerator implements CodeGenerator {
+public abstract class AbstractFreeMarkerCodeGenerator<T, S> implements CodeGenerator<T, S> {
 
 	private Configuration configuration;
 
