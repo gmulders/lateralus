@@ -1,6 +1,5 @@
 package io.lateralus.lexergenerator.core.definition;
 
-import io.lateralus.lexergenerator.core.DebugUtils;
 import io.lateralus.lexergenerator.core.automaton.Automaton;
 import io.lateralus.lexergenerator.core.automaton.AutomatonDeterminizer;
 import io.lateralus.lexergenerator.core.automaton.AutomatonMinimizer;
@@ -90,8 +89,6 @@ public class LexerDefinitionBuilder {
 
 		// Minimize the DFA.
 		dfa = minimize(dfa);
-
-		DebugUtils.printAutomaton(dfa, alphabetIntervals, lexerErrorState, true);
 
 		Map<LexerDefinition.TokenType, Set<Integer>> newMap = new HashMap<>();
 		acceptingStateTokenTypeMap.forEach((i, t) -> newMap.computeIfAbsent(t, t2 -> new HashSet<>()).add(i));
