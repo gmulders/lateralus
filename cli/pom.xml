@@ -34,7 +34,7 @@
         <dependency>
             <groupId>io.lateralus.lexergenerator</groupId>
             <artifactId>main</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>

@@ -34,12 +34,12 @@
         <dependency>
             <groupId>io.lateralus.lexergenerator</groupId>
             <artifactId>parser</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.lateralus.lexergenerator</groupId>
             <artifactId>code-generator</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
