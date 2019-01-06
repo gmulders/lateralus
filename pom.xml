@@ -6,8 +6,12 @@
 
 	<groupId>io.lateralus</groupId>
 	<artifactId>lexergenerator</artifactId>
-	<packaging>pom</packaging>
 	<version>1.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<name>${project.groupId}:${project.artifactId}</name>
+	<description>Aggregator pom for the lexer generator.</description>
+	<url>https://gitlab.com/lateralusio/lexergenerator</url>
 
 	<licenses>
 		<license>
@@ -15,6 +19,19 @@
 			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
 		</license>
 	</licenses>
+
+	<developers>
+		<developer>
+			<name>Geert Mulders</name>
+			<email>geert@lateralus.io</email>
+		</developer>
+	</developers>
+
+	<scm>
+		<connection>scm:git:git://gitlab.com/lateralusio/lexergenerator.git</connection>
+		<developerConnection>scm:git:ssh://gitlab.com/lateralusio/lexergenerator.git</developerConnection>
+		<url>https://gitlab.com/lateralusio/lexergenerator/tree/master</url>
+	</scm>
 
 	<modules>
 		<module>core</module>
