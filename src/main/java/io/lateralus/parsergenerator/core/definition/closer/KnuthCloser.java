@@ -1,4 +1,9 @@
-package io.lateralus.parsergenerator.core;
+package io.lateralus.parsergenerator.core.definition.closer;
+
+import io.lateralus.parsergenerator.core.Grammar;
+import io.lateralus.parsergenerator.core.Production;
+import io.lateralus.parsergenerator.core.Symbol;
+import io.lateralus.parsergenerator.core.Terminal;
 
 import java.util.List;
 import java.util.Set;

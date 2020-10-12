@@ -175,7 +175,7 @@ public class Grammar {
 
 		private void augmentGrammar(Set<NonTerminal> nonTerminals, SetMultimap<NonTerminal, Production> productionsMap) {
 			nonTerminals.add(START);
-			final Production startProduction = new Production(START, List.of(productions.get(0).getLhs()), null, "Root", false);
+			final Production startProduction = new Production(START, List.of(productions.get(0).getLhs()), List.of("Root"), "Root", false);
 			productionsMap.put(START, startProduction);
 		}
 

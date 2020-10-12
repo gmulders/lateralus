@@ -7,11 +7,17 @@ import io.lateralus.parsergenerator.core.NonTerminal;
 import io.lateralus.parsergenerator.core.State;
 import io.lateralus.parsergenerator.core.Terminal;
 
+import java.util.LinkedHashSet;
 import java.util.List;
 
+/**
+ * Abstract representation of a parser. This is the output of the parser generator and the input for the code generator.
+ */
 public class ParserDefinition {
 
 	private final Grammar grammar;
+
+	private final LinkedHashSet<State> canonicalCollection;
 
 	private final Table<State, Terminal, Action> actionTable;
 
@@ -19,11 +25,11 @@ public class ParserDefinition {
 
 	private final List<Terminal> orderedTerminalList;
 
-	public ParserDefinition(Grammar grammar,
-			Table<State, Terminal, Action> actionTable,
-            Table<State, NonTerminal, State> gotoTable,
-            List<Terminal> orderedTerminalList) {
+	public ParserDefinition(Grammar grammar, LinkedHashSet<State> canonicalCollection,
+			Table<State, Terminal, Action> actionTable, Table<State, NonTerminal, State> gotoTable,
+			List<Terminal> orderedTerminalList) {
 		this.grammar = grammar;
+		this.canonicalCollection = canonicalCollection;
 		this.actionTable = actionTable;
 		this.gotoTable = gotoTable;
 		this.orderedTerminalList = orderedTerminalList;
@@ -31,6 +37,10 @@ public class ParserDefinition {
 
 	public Grammar getGrammar() {
 		return grammar;
+	}
+
+	public LinkedHashSet<State> getCanonicalCollection() {
+		return canonicalCollection;
 	}
 
 	public Table<State, Terminal, Action> getActionTable() {

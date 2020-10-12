@@ -1,5 +1,6 @@
 package io.lateralus.parsergenerator.codegenerator.simple;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Table;
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.template.Template;
@@ -19,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -64,76 +66,118 @@ public class BasicParserCodeGenerator extends AbstractFreeMarkerCodeGenerator<Ba
 		Set<SourceFile<String>> result = new HashSet<>();
 
 		Map<String, Object> model = createBaseModel();
-		result.add(createSourceFile("action.ftl", "Action.java", "", model));
 		result.add(createSourceFile("parser-exception.ftl", "ParserException.java", "", model));
 
-		// Maak een map van State -> Integer
-		// Gooi alle states uit de gotoTable en de actionTable op een hoop en maak daar de map uit.
-		Set<State> states = new HashSet<>(parserDefinition.getActionTable().rowKeySet());
-		states.addAll(parserDefinition.getGotoTable().rowKeySet());
-		states.addAll(parserDefinition.getGotoTable().values());
-
-		List<State> stateList = new ArrayList<>(states);
+		List<State> stateList = new ArrayList<>(parserDefinition.getCanonicalCollection());
 		Map<State, Integer> stateIntegerMap = new HashMap<>();
 		for (int i = 0; i < stateList.size(); i++) {
 			stateIntegerMap.put(stateList.get(i), i);
 		}
 
-		String actionTableJava = createActionTableJava(parserDefinition, stateList, stateIntegerMap);
+		List<Symbol> symbolList = new ArrayList<>(parserDefinition.getOrderedTerminalList());
+		symbolList.addAll(parserDefinition.getGrammar().getNonTerminals());
+		Map<Symbol, Integer> symbolIntegerMap = new HashMap<>();
+		for (int i = 0; i < symbolList.size(); i++) {
+			symbolIntegerMap.put(symbolList.get(i), i);
+		}
+
+		Map<Production, Integer> productionIntegerMap = new HashMap<>();
+		int productionId = 0;
+		for (Production production : parserDefinition.getGrammar().getProductions()) {
+			productionIntegerMap.put(production, productionId);
+			productionId++;
+		}
+
+		String actionTableJava = createActionTableJava(parserDefinition, stateList, stateIntegerMap, symbolList, productionIntegerMap);
 		model.put("actionTableJava", actionTableJava);
+		String productionSizeJava = createProductionSizeJava(parserDefinition.getGrammar().getProductions());
+		model.put("productionSizeJava", productionSizeJava);
+		String productionNonTerminalIdJava = createNonTerminalIdJava(parserDefinition.getGrammar().getProductions(), symbolIntegerMap);
+		model.put("productionNonTerminalIdJava", productionNonTerminalIdJava);
+		model.put("reductionList", createReductions(parserDefinition.getGrammar()));
 		result.add(createSourceFile("parser.ftl", "Parser.java", "", model));
 
 		return result;
 	}
 
-	private String createActionTableJava(ParserDefinition parserDefinition, List<State> stateList, Map<State, Integer> stateIntegerMap) {
+	private String createProductionSizeJava(Collection<Production> productions) {
+		String sizes = productions.stream()
+				.map(Production::getRhs)
+				.map(List::size)
+				.map(String::valueOf)
+				.collect(Collectors.joining(","));
+
+		return "new int[] {" + sizes + "}";
+	}
+
+	private String createNonTerminalIdJava(Collection<Production> productions, Map<Symbol, Integer> symbolIntegerMap) {
+		String ids = productions.stream()
+				.map(Production::getLhs)
+				.map(symbolIntegerMap::get)
+				.map(String::valueOf)
+				.collect(Collectors.joining(","));
+
+		return "new int[] {" + ids + "}";
+	}
+
+	private String createActionTableJava(ParserDefinition parserDefinition, List<State> stateList,
+			Map<State, Integer> stateIntegerMap, List<Symbol> symbolList, Map<Production, Integer> productionIntegerMap)
+			throws CodeGenerationException {
 
 		Table<State, Terminal, Action> actionTable = parserDefinition.getActionTable();
-		List<Terminal> terminalList = parserDefinition.getOrderedTerminalList();
+		Table<State, NonTerminal, State> gotoTable = parserDefinition.getGotoTable();
 
-		StringBuilder builder = new StringBuilder("new Action[][] { ");
+		int[][] table = new int[stateList.size()][symbolList.size()];
+
 		for (int i = 0; i < stateList.size(); i++) {
 			State state = stateList.get(i);
-			builder.append("{");
-			for (int j = 0; j < terminalList.size(); j++) {
-				Terminal terminal = terminalList.get(j);
-				Action action = actionTable.get(state, terminal);
-				if (action == null) {
-					builder.append("null");
+			for (int j = 0; j < symbolList.size(); j++) {
+				Symbol symbol = symbolList.get(j);
+				int value;
+				if (symbol.isTerminal()) {
+					Action action = actionTable.get(state, symbol);
+					value = determineActionValue(action, productionIntegerMap, stateIntegerMap);
 				} else {
-					switch (action.getActionType()) {
-						case SHIFT:
-							int stateInt = stateIntegerMap.get(action.getState());
-							builder.append("Action.shift(").append(stateInt).append(")");
-							break;
-						case REDUCE:
-							String nodeName = action.getProduction().getNodeName();
-							if (nodeName == null) {
-								nodeName = action.getProduction().getLhs().getName();
-							}
-							if (action.getProduction().getRhs().size() == 1 && !action.getProduction().getRhs().get(0).isTerminal()) {
-								builder.append("Action.reduce(items -> (").append(nodeName).append("Node)items[0], 2, 2)");
-							} else {
-								builder.append("Action.reduce(items -> new ").append(nodeName).append("Node(null), 2, 2)");
-							}
-							break;
-						case ACCEPT:
-							builder.append("Action.accept()");
-							break;
-					}
+					State nextState = gotoTable.get(state, symbol);
+					value = determineGotoValue(nextState, stateIntegerMap);
 				}
-				if (j != terminalList.size() - 1) {
-					builder.append(",");
-				}
-			}
-			builder.append("}");
-			if (i != stateList.size() - 1) {
-				builder.append(",\n");
+				table[i][j] = value;
 			}
 		}
 
-		builder.append("}");
+		StringBuilder builder = new StringBuilder("new int[][] {{");
+		String tableContent = Arrays.stream(table)
+				.map(row -> Arrays.stream(row)
+						.mapToObj(String::valueOf)
+						.collect(Collectors.joining(","))
+				).collect(Collectors.joining("},{"));
+		builder.append(tableContent);
+		builder.append("}}");
 		return builder.toString();
+	}
+
+	private int determineGotoValue(State nextState, Map<State, Integer> stateIntegerMap) {
+		if (nextState == null) {
+			return 0;
+		}
+		return stateIntegerMap.get(nextState);
+	}
+
+	private int determineActionValue(Action action, Map<Production, Integer> productionIntegerMap,
+			Map<State, Integer> stateIntegerMap) throws CodeGenerationException {
+
+		if (action == null) {
+			return 0;
+		}
+		switch (action.getActionType()) {
+			case ACCEPT:
+				return Integer.MIN_VALUE;
+			case REDUCE:
+				return productionIntegerMap.get(action.getProduction()) + 1;
+			case SHIFT:
+				return ~stateIntegerMap.get(action.getState());
+		}
+		throw new CodeGenerationException("Unknown action type");
 	}
 
 	private Set<SourceFile<String>> createNodes(ParserDefinition parserDefinition) throws CodeGenerationException {
@@ -154,6 +198,26 @@ public class BasicParserCodeGenerator extends AbstractFreeMarkerCodeGenerator<Ba
 		result.add(createSourceFile("base-node.ftl", "BaseNode.java", "nodes", createBaseModel()));
 		result.add(createSourceFile("binary-operation-node.ftl", "BinaryOperationNode.java", "nodes", createBaseModel()));
 		return result;
+	}
+
+	private List<Reduction> createReductions(Grammar grammar) {
+		List<Reduction> reductionList = new ArrayList<>();
+		int index = 0;
+		for (Production production : grammar.getProductions()) {
+			boolean isCast = production.getRhs().size() == 1 && !production.getRhs().get(0).isTerminal();
+			reductionList.add(new Reduction(index, isCast, getNodeTypeName(production), determineParameters(production)));
+			index++;
+		}
+
+		return reductionList;
+	}
+
+	private String getNodeTypeName(Production production) {
+		String nodeType = production.getNodeName();
+		if (nodeType == null) {
+			nodeType = production.getLhs().getName();
+		}
+		return nodeType + "Node";
 	}
 
 	private Set<SourceFile<String>> createVisitor(ParserDefinition parserDefinition) throws CodeGenerationException {
@@ -211,17 +275,12 @@ public class BasicParserCodeGenerator extends AbstractFreeMarkerCodeGenerator<Ba
 		Set<Node> nodes = new HashSet<>();
 
 		for (NonTerminal nonTerminal : grammar.getNonTerminals()) {
-			Set<Production> nonTerminalProductions = grammar.getProductions(nonTerminal);
 
 			String baseName = "BaseNode";
 			for (Production production : productions) {
 				if (production.getRhs().size() == 1
 						&& production.getRhs().get(0) == nonTerminal) {
-					baseName = production.getNodeName();
-					if (baseName == null) {
-						baseName = production.getLhs().getName();
-					}
-					baseName += "Node";
+					baseName = getNodeTypeName(production);
 					break;
 				}
 			}
@@ -230,6 +289,7 @@ public class BasicParserCodeGenerator extends AbstractFreeMarkerCodeGenerator<Ba
 			nodes.add(new Node(nonTerminal.getName() + "Node", baseName, true, false, null, null));
 			baseName = nonTerminal.getName() + "Node";
 
+			Set<Production> nonTerminalProductions = grammar.getProductions(nonTerminal);
 			// Voeg voor elke een productie bij deze non-terminal een node toe.
 			for (Production production : nonTerminalProductions) {
 				// Skip producties waarvoor geldt dat de rhs == 1 en rhs(0).isNonTerminal
@@ -237,20 +297,13 @@ public class BasicParserCodeGenerator extends AbstractFreeMarkerCodeGenerator<Ba
 					continue;
 				}
 
-				String nodeName = production.getNodeName();
-				if (nodeName == null) {
-					nodeName = nonTerminal.getName();
-				}
-				nodeName += "Node";
-				List<Parameter> parameterList = determineParameters(production);
-				String firstTokenName = determineFirstTokenName(production);
 				nodes.add(new Node(
-						nodeName,
+						getNodeTypeName(production),
 						baseName,
 						false,
 						production.isBinary(),
-						parameterList,
-						firstTokenName));
+						determineParameters(production),
+						determineFirstTokenName(production)));
 			}
 		}
 
@@ -259,23 +312,30 @@ public class BasicParserCodeGenerator extends AbstractFreeMarkerCodeGenerator<Ba
 
 	private List<Parameter> determineParameters(Production production) {
 		List<Parameter> result = new ArrayList<>();
-
-		for (int i = 0; i< production.getRhs().size(); i++) {
+		for (int i = 0; i < production.getRhs().size(); i++) {
 			Symbol symbol = production.getRhs().get(i);
 			String rhsName = production.getRhsNames().get(i);
-			if (rhsName == null) {
-				rhsName = symbol.getName();
-			}
-			String typeName = "Token";
-			String paramName = upperUnderscoreToLowerCamel(rhsName);
-			if (!symbol.isTerminal()) {
-				typeName = symbol.getName() + "Node";
-				paramName = upperCamelToLowerCamel(rhsName);
-			}
-			result.add(new Parameter(paramName, typeName));
+			result.add(new Parameter(determineParamName(symbol, rhsName), determineTypeName(symbol)));
 		}
-
 		return result;
+	}
+
+	private String determineParamName(Symbol symbol, String overriddenName) {
+		String name = overriddenName;
+		if (Strings.isNullOrEmpty(name)) {
+			name = symbol.getName();
+		}
+		if (symbol.isTerminal()) {
+			return upperUnderscoreToLowerCamel(name);
+		}
+		return upperCamelToLowerCamel(name);
+	}
+
+	private String determineTypeName(Symbol symbol) {
+		if (symbol.isTerminal()) {
+			return "Token";
+		}
+		return symbol.getName() + "Node";
 	}
 
 	private String determineFirstTokenName(Production production) {
@@ -387,6 +447,36 @@ public class BasicParserCodeGenerator extends AbstractFreeMarkerCodeGenerator<Ba
 
 		public String getType() {
 			return type;
+		}
+	}
+
+	public static class Reduction {
+		private final int productionId;
+		private final boolean isCast;
+		private final String nodeType;
+		private final List<Parameter> parameterList;
+
+		public Reduction(int productionId, boolean isCast, String nodeType, List<Parameter> parameterList) {
+			this.productionId = productionId;
+			this.isCast = isCast;
+			this.nodeType = nodeType;
+			this.parameterList = parameterList;
+		}
+
+		public int getProductionId() {
+			return productionId;
+		}
+
+		public boolean getIsCast() {
+			return isCast;
+		}
+
+		public String getNodeType() {
+			return nodeType;
+		}
+
+		public List<Parameter> getParameterList() {
+			return parameterList;
 		}
 	}
 }

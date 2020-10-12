@@ -12,5 +12,5 @@ public interface CodeGenerator<T, S> {
 
 	void setProperties(T properties);
 
-	Set<SourceFile<S>> generate(ParserDefinition lexerDefinition) throws CodeGenerationException;
+	Set<SourceFile<S>> generate(ParserDefinition parserDefinition) throws CodeGenerationException;
 }
