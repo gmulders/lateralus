@@ -1,9 +1,13 @@
-package io.lateralus.parsergenerator.core;
+package io.lateralus.parsergenerator.core.definition;
+
+import io.lateralus.parsergenerator.core.grammar.Production;
+import io.lateralus.parsergenerator.core.grammar.Symbol;
+import io.lateralus.parsergenerator.core.grammar.Terminal;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static io.lateralus.parsergenerator.core.Terminal.EPSILON;
+import static io.lateralus.parsergenerator.core.grammar.Terminal.EPSILON;
 
 /**
  * Represents an LR(1) item of which a {@link State} is made of.

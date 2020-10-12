@@ -1,4 +1,4 @@
-package io.lateralus.parsergenerator.core;
+package io.lateralus.parsergenerator.core.grammar;
 
 /**
  * Represents a terminal {@link Symbol}

@@ -1,4 +1,4 @@
-package io.lateralus.parsergenerator.core;
+package io.lateralus.parsergenerator.core.grammar;
 
 import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.SetMultimap;
@@ -14,9 +14,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.google.common.collect.Multimaps.toMultimap;
-import static io.lateralus.parsergenerator.core.NonTerminal.START;
-import static io.lateralus.parsergenerator.core.Terminal.EOF;
-import static io.lateralus.parsergenerator.core.Terminal.EPSILON;
+import static io.lateralus.parsergenerator.core.grammar.NonTerminal.START;
+import static io.lateralus.parsergenerator.core.grammar.Terminal.EOF;
+import static io.lateralus.parsergenerator.core.grammar.Terminal.EPSILON;
 import static java.util.function.Function.identity;
 import static java.util.function.Predicate.not;
 

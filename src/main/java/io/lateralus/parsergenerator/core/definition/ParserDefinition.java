@@ -1,11 +1,9 @@
 package io.lateralus.parsergenerator.core.definition;
 
 import com.google.common.collect.Table;
-import io.lateralus.parsergenerator.core.Action;
-import io.lateralus.parsergenerator.core.Grammar;
-import io.lateralus.parsergenerator.core.NonTerminal;
-import io.lateralus.parsergenerator.core.State;
-import io.lateralus.parsergenerator.core.Terminal;
+import io.lateralus.parsergenerator.core.grammar.Grammar;
+import io.lateralus.parsergenerator.core.grammar.NonTerminal;
+import io.lateralus.parsergenerator.core.grammar.Terminal;
 
 import java.util.LinkedHashSet;
 import java.util.List;

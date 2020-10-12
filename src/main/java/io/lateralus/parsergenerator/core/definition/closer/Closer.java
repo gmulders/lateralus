@@ -1,6 +1,6 @@
 package io.lateralus.parsergenerator.core.definition.closer;
 
-import io.lateralus.parsergenerator.core.Item;
+import io.lateralus.parsergenerator.core.definition.Item;
 
 import java.util.Set;
 

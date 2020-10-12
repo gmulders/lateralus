@@ -1,4 +1,6 @@
-package io.lateralus.parsergenerator.core;
+package io.lateralus.parsergenerator.core.definition;
+
+import io.lateralus.parsergenerator.core.grammar.Production;
 
 import java.util.Objects;
 

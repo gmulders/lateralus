@@ -1,4 +1,4 @@
-package io.lateralus.parsergenerator.core;
+package io.lateralus.parsergenerator.core.grammar;
 
 /**
  * Abstract class that represents a Symbol. There are two subclasses; {@link Terminal} and {@link NonTerminal}.

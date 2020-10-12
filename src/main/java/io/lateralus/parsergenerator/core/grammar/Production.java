@@ -1,4 +1,4 @@
-package io.lateralus.parsergenerator.core;
+package io.lateralus.parsergenerator.core.grammar;
 
 import java.util.List;
 import java.util.stream.Collectors;

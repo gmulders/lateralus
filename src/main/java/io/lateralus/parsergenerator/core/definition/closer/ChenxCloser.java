@@ -1,10 +1,10 @@
 package io.lateralus.parsergenerator.core.definition.closer;
 
-import io.lateralus.parsergenerator.core.Grammar;
-import io.lateralus.parsergenerator.core.NonTerminal;
-import io.lateralus.parsergenerator.core.Production;
-import io.lateralus.parsergenerator.core.Symbol;
-import io.lateralus.parsergenerator.core.Terminal;
+import io.lateralus.parsergenerator.core.grammar.Grammar;
+import io.lateralus.parsergenerator.core.grammar.NonTerminal;
+import io.lateralus.parsergenerator.core.grammar.Production;
+import io.lateralus.parsergenerator.core.grammar.Symbol;
+import io.lateralus.parsergenerator.core.grammar.Terminal;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static io.lateralus.parsergenerator.core.Terminal.EPSILON;
+import static io.lateralus.parsergenerator.core.grammar.Terminal.EPSILON;
 import static java.util.function.Predicate.not;
 
 /**

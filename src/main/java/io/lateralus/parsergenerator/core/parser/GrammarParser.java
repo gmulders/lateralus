@@ -1,7 +1,11 @@
-package io.lateralus.parsergenerator.core;
+package io.lateralus.parsergenerator.core.parser;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
+import io.lateralus.parsergenerator.core.grammar.Grammar;
+import io.lateralus.parsergenerator.core.grammar.NonTerminal;
+import io.lateralus.parsergenerator.core.grammar.Symbol;
+import io.lateralus.parsergenerator.core.grammar.Terminal;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,7 +20,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static io.lateralus.parsergenerator.core.Terminal.EPSILON;
+import static io.lateralus.parsergenerator.core.grammar.Terminal.EPSILON;
 
 public class GrammarParser {
 

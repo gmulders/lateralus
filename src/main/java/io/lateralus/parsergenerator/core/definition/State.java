@@ -1,4 +1,7 @@
-package io.lateralus.parsergenerator.core;
+package io.lateralus.parsergenerator.core.definition;
+
+import io.lateralus.parsergenerator.core.grammar.Grammar;
+import io.lateralus.parsergenerator.core.grammar.Symbol;
 
 import java.util.HashMap;
 import java.util.Map;
