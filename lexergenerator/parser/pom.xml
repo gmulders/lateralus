@@ -6,15 +6,15 @@
 
     <parent>
         <groupId>io.lateralus</groupId>
-        <artifactId>lexergenerator</artifactId>
+        <artifactId>lateralus</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
     <groupId>io.lateralus.lexergenerator</groupId>
-    <artifactId>cli</artifactId>
+    <artifactId>parser</artifactId>
     <packaging>jar</packaging>
 
-    <description>Command line interface for the lexer generator.</description>
+    <description>Parser that can read a description file.</description>
 
     <build>
         <plugins>
@@ -31,13 +31,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>info.picocli</groupId>
-            <artifactId>picocli</artifactId>
-            <version>3.8.2</version>
-        </dependency>
-        <dependency>
             <groupId>io.lateralus.lexergenerator</groupId>
-            <artifactId>main</artifactId>
+            <artifactId>core</artifactId>
             <version>${project.version}</version>
         </dependency>
 

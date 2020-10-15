@@ -5,13 +5,13 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>io.lateralus</groupId>
-	<artifactId>lexergenerator</artifactId>
+	<artifactId>lateralus</artifactId>
 	<version>1.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>${project.groupId}:${project.artifactId}</name>
-	<description>Aggregator pom for the lexer generator.</description>
-	<url>https://gitlab.com/lateralusio/lexergenerator</url>
+	<description>Aggregator pom for Lateralus; a compiler tools project.</description>
+	<url>https://gitlab.com/lateralusio/lateralus</url>
 
 	<licenses>
 		<license>
@@ -28,18 +28,18 @@
 	</developers>
 
 	<scm>
-		<connection>scm:git:git://gitlab.com/lateralusio/lexergenerator.git</connection>
-		<developerConnection>scm:git:ssh://gitlab.com/lateralusio/lexergenerator.git</developerConnection>
-		<url>https://gitlab.com/lateralusio/lexergenerator/tree/master</url>
+		<connection>scm:git:git://gitlab.com/lateralusio/lateralus.git</connection>
+		<developerConnection>scm:git:ssh://gitlab.com/lateralusio/lateralus.git</developerConnection>
+		<url>https://gitlab.com/lateralusio/lateralus/tree/master</url>
 	</scm>
 
 	<modules>
-		<module>core</module>
-		<module>code-generator</module>
-		<module>parser</module>
-		<module>main</module>
-		<module>cli</module>
-		<module>lexergenerator-maven-plugin</module>
+		<module>lexergenerator/core</module>
+		<module>lexergenerator/code-generator</module>
+		<module>lexergenerator/parser</module>
+		<module>lexergenerator/main</module>
+		<module>lexergenerator/cli</module>
+		<module>lexergenerator/lexergenerator-maven-plugin</module>
 	</modules>
 
 	<build>
