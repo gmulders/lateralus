@@ -8,13 +8,13 @@ import freemarker.template.TemplateException;
 import io.lateralus.parsergenerator.codegenerator.CodeGenerationException;
 import io.lateralus.parsergenerator.codegenerator.SourceFile;
 import io.lateralus.parsergenerator.core.definition.Action;
+import io.lateralus.parsergenerator.core.definition.ParserDefinition;
+import io.lateralus.parsergenerator.core.definition.State;
 import io.lateralus.parsergenerator.core.grammar.Grammar;
 import io.lateralus.parsergenerator.core.grammar.NonTerminal;
 import io.lateralus.parsergenerator.core.grammar.Production;
-import io.lateralus.parsergenerator.core.definition.State;
 import io.lateralus.parsergenerator.core.grammar.Symbol;
 import io.lateralus.parsergenerator.core.grammar.Terminal;
-import io.lateralus.parsergenerator.core.definition.ParserDefinition;
 
 import java.io.File;
 import java.io.IOException;

@@ -12,20 +12,13 @@
 
     <groupId>io.lateralus.lexergenerator</groupId>
     <artifactId>lexergenerator-maven-plugin</artifactId>
+    <name>lexer-generator-lexergenerator-maven-plugin</name>
     <packaging>maven-plugin</packaging>
 
     <description>Maven plugin for the lexer generator.</description>
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-plugin-plugin</artifactId>

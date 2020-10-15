@@ -12,6 +12,7 @@
 
     <groupId>io.lateralus.lexergenerator</groupId>
     <artifactId>code-generator</artifactId>
+    <name>lexer-generator-code-generator</name>
     <packaging>jar</packaging>
 
     <description>Code generator that can generate source (or binary) code from a lexer definition.</description>

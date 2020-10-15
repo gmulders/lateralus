@@ -1,7 +1,7 @@
 package io.lateralus.parsergenerator.core.definition.closer;
 
-import io.lateralus.parsergenerator.core.grammar.Grammar;
 import io.lateralus.parsergenerator.core.definition.Item;
+import io.lateralus.parsergenerator.core.grammar.Grammar;
 import io.lateralus.parsergenerator.core.grammar.NonTerminal;
 import io.lateralus.parsergenerator.core.grammar.Production;
 import io.lateralus.parsergenerator.core.grammar.Symbol;

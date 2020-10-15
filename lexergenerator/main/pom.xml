@@ -12,22 +12,10 @@
 
     <groupId>io.lateralus.lexergenerator</groupId>
     <artifactId>main</artifactId>
+    <name>lexer-generator-main</name>
     <packaging>jar</packaging>
 
     <description>Defines a simple entry point for the lexer generator, combining the parser, core and code generator modules.</description>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 
     <dependencies>
         <dependency>

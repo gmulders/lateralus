@@ -1,20 +1,20 @@
-package io.lateralus.parsergenerator;
+package io.lateralus.parsergenerator.main;
 
 import io.lateralus.parsergenerator.codegenerator.CodeGenerationException;
 import io.lateralus.parsergenerator.codegenerator.CodeGenerator;
 import io.lateralus.parsergenerator.codegenerator.simple.BasicParserCodeGenerator;
+import io.lateralus.parsergenerator.core.definition.ParserDefinition;
+import io.lateralus.parsergenerator.core.definition.ParserDefinitionBuilder;
+import io.lateralus.parsergenerator.core.definition.ParserDefinitionException;
+import io.lateralus.parsergenerator.core.definition.State;
 import io.lateralus.parsergenerator.core.definition.closer.ChenxCloser;
 import io.lateralus.parsergenerator.core.definition.closer.Closer;
 import io.lateralus.parsergenerator.core.grammar.Grammar;
 import io.lateralus.parsergenerator.core.grammar.GrammarException;
-import io.lateralus.parsergenerator.core.parser.GrammarParser;
-import io.lateralus.parsergenerator.core.parser.GrammarParserException;
-import io.lateralus.parsergenerator.core.definition.ParserDefinitionBuilder;
-import io.lateralus.parsergenerator.core.definition.ParserDefinitionException;
-import io.lateralus.parsergenerator.core.definition.State;
 import io.lateralus.parsergenerator.core.grammar.Symbol;
 import io.lateralus.parsergenerator.core.grammar.Terminal;
-import io.lateralus.parsergenerator.core.definition.ParserDefinition;
+import io.lateralus.parsergenerator.core.parser.GrammarParser;
+import io.lateralus.parsergenerator.core.parser.GrammarParserException;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
