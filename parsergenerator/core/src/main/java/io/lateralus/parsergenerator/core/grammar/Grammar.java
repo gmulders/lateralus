@@ -5,7 +5,6 @@ import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -34,7 +33,9 @@ public class Grammar {
 
 	private final Set<NonTerminal> nonTerminals;
 
-	private final SetMultimap<NonTerminal, Production> productions;
+	private final List<Production> productions;
+
+	private final SetMultimap<NonTerminal, Production> productionMap;
 
 	private final NonTerminal sentenceSymbol;
 
@@ -45,7 +46,8 @@ public class Grammar {
 	private Grammar(Set<Symbol> symbols,
 	                Set<Terminal> terminals,
 	                Set<NonTerminal> nonTerminals,
-	                SetMultimap<NonTerminal, Production> productions,
+	                List<Production> productions,
+	                SetMultimap<NonTerminal, Production> productionMap,
 	                NonTerminal sentenceSymbol,
 	                Map<Symbol, Set<Terminal>> firstSets,
 	                Map<NonTerminal, Set<Terminal>> followSets) {
@@ -54,6 +56,7 @@ public class Grammar {
 		this.terminals = terminals;
 		this.nonTerminals = nonTerminals;
 		this.productions = productions;
+		this.productionMap = productionMap;
 		this.firstSets = firstSets;
 		this.followSets = followSets;
 	}
@@ -81,11 +84,11 @@ public class Grammar {
 	}
 
 	public Set<Production> getProductions(NonTerminal lhs) {
-		return productions.get(lhs);
+		return productionMap.get(lhs);
 	}
 
-	public Collection<Production> getProductions() {
-		return productions.values();
+	public List<Production> getProductions() {
+		return productions;
 	}
 
 	public Set<Symbol> getSymbols() {
@@ -139,16 +142,16 @@ public class Grammar {
 				throw new GrammarException("The rules should not contain the augmentation rule (S' -> <start symbol>)");
 			}
 
+			augmentGrammar();
+
 			Set<Terminal> terminals = calculateTerminals(symbols);
 			Set<NonTerminal> nonTerminals = calculateNonTerminals(symbols);
 			SetMultimap<NonTerminal, Production> productionsMap = calculateProductionMap();
 
-			augmentGrammar(nonTerminals, productionsMap);
+			Map<Symbol, Set<Terminal>> firstSets = calculateFirstSets(terminals, nonTerminals, productions);
+			Map<NonTerminal, Set<Terminal>> followSets = calculateFollowSets(nonTerminals, productions, firstSets);
 
-			Map<Symbol, Set<Terminal>> firstSets = calculateFirstSets(terminals, nonTerminals, productionsMap);
-			Map<NonTerminal, Set<Terminal>> followSets = calculateFollowSets(nonTerminals, productionsMap, firstSets);
-
-			return new Grammar(symbols, terminals, nonTerminals, productionsMap, START, firstSets, followSets);
+			return new Grammar(symbols, terminals, nonTerminals, productions, productionsMap, START, firstSets, followSets);
 		}
 
 		private Set<Terminal> calculateTerminals(Set<Symbol> symbols) {
@@ -173,10 +176,9 @@ public class Grammar {
 							MultimapBuilder.hashKeys().hashSetValues()::build));
 		}
 
-		private void augmentGrammar(Set<NonTerminal> nonTerminals, SetMultimap<NonTerminal, Production> productionsMap) {
-			nonTerminals.add(START);
-			final Production startProduction = new Production(START, List.of(productions.get(0).getLhs()), List.of("Root"), "Root", false);
-			productionsMap.put(START, startProduction);
+		private void augmentGrammar() {
+			NonTerminal start = productions.get(0).getLhs();
+			addProduction(new Production(START, List.of(start), null, "Root", false));
 		}
 
 		private static Set<Terminal> calculateFirstSetForRhs(List<Symbol> rhs, Map<Symbol, Set<Terminal>> firstSets) {
@@ -203,7 +205,7 @@ public class Grammar {
 		private static Map<Symbol, Set<Terminal>> calculateFirstSets(
 				Set<Terminal> terminals,
 				Set<NonTerminal> nonTerminals,
-				SetMultimap<NonTerminal, Production> productions
+				List<Production> productions
 		) {
 			Map<Symbol, Set<Terminal>> firstSets = new HashMap<>();
 
@@ -220,7 +222,7 @@ public class Grammar {
 
 			while (isChanged) {
 				isChanged = false;
-				for (Production production : productions.values()) {
+				for (Production production : productions) {
 					Set<Terminal> firstSetForRhs = calculateFirstSetForRhs(production.getRhs(), firstSets);
 					isChanged |= firstSets.get(production.getLhs()).addAll(firstSetForRhs);
 				}
@@ -235,7 +237,7 @@ public class Grammar {
 		 */
 		private static Map<NonTerminal, Set<Terminal>> calculateFollowSets(
 				Set<NonTerminal> nonTerminals,
-				SetMultimap<NonTerminal, Production> productions,
+				List<Production> productions,
 				Map<Symbol, Set<Terminal>> firstSets
 		) {
 			Map<NonTerminal, Set<Terminal>> followSets = new HashMap<>();
@@ -251,7 +253,7 @@ public class Grammar {
 			while (isChanged) {
 				isChanged = false;
 
-				for (Production rule : productions.values()) {
+				for (Production rule : productions) {
 					Set<Terminal> trailer = new HashSet<>(followSets.get(rule.getLhs()));
 					List<Symbol> rhs = rule.getRhs();
 					for (int i = rhs.size() - 1; i >= 0; i--) {
