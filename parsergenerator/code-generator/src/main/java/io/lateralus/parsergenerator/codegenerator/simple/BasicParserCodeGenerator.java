@@ -205,7 +205,7 @@ public class BasicParserCodeGenerator extends AbstractFreeMarkerCodeGenerator<Ba
 		int index = 0;
 		for (Production production : grammar.getProductions()) {
 			boolean isCast = production.getRhs().size() == 1 && !production.getRhs().get(0).isTerminal();
-			reductionList.add(new Reduction(index, isCast, getNodeTypeName(production), determineParameters(production)));
+			reductionList.add(new Reduction(index, isCast, getNodeTypeName(production), isCast ? null : determineParameters(production)));
 			index++;
 		}
 
@@ -270,24 +270,13 @@ public class BasicParserCodeGenerator extends AbstractFreeMarkerCodeGenerator<Ba
 
 	private Set<Node> createNodeDefinitions(ParserDefinition parserDefinition) {
 		Grammar grammar = parserDefinition.getGrammar();
-		Collection<Production> productions = grammar.getProductions();
-
 		Set<Node> nodes = new HashSet<>();
 
 		for (NonTerminal nonTerminal : grammar.getNonTerminals()) {
-
-			String baseName = "BaseNode";
-			for (Production production : productions) {
-				if (production.getRhs().size() == 1
-						&& production.getRhs().get(0) == nonTerminal) {
-					baseName = getNodeTypeName(production);
-					break;
-				}
-			}
+			String nodeName = nonTerminal.getName() + "Node";
 
 			// Voeg eerst een abstracte node toe met de naam van de NonTerminal.
-			nodes.add(new Node(nonTerminal.getName() + "Node", baseName, true, false, null, null));
-			baseName = nonTerminal.getName() + "Node";
+			nodes.add(new Node(nodeName, findParentNodeName(parserDefinition, nonTerminal), true, false, null, null));
 
 			Set<Production> nonTerminalProductions = grammar.getProductions(nonTerminal);
 			// Voeg voor elke een productie bij deze non-terminal een node toe.
@@ -299,7 +288,7 @@ public class BasicParserCodeGenerator extends AbstractFreeMarkerCodeGenerator<Ba
 
 				nodes.add(new Node(
 						getNodeTypeName(production),
-						baseName,
+						nodeName,
 						false,
 						production.isBinary(),
 						determineParameters(production),
@@ -308,6 +297,17 @@ public class BasicParserCodeGenerator extends AbstractFreeMarkerCodeGenerator<Ba
 		}
 
 		return nodes;
+	}
+
+	private String findParentNodeName(ParserDefinition parserDefinition, NonTerminal nonTerminal) {
+		Collection<Production> productions = parserDefinition.getGrammar().getProductions();
+		for (Production production : productions) {
+			if (production.getRhs().size() == 1
+					&& production.getRhs().get(0) == nonTerminal) {
+				return getNodeTypeName(production);
+			}
+		}
+		return "BaseNode";
 	}
 
 	private List<Parameter> determineParameters(Production production) {
@@ -326,9 +326,9 @@ public class BasicParserCodeGenerator extends AbstractFreeMarkerCodeGenerator<Ba
 			name = symbol.getName();
 		}
 		if (symbol.isTerminal()) {
-			return upperUnderscoreToLowerCamel(name);
+			return UPPER_UNDERSCORE.to(LOWER_CAMEL, name);
 		}
-		return upperCamelToLowerCamel(name);
+		return UPPER_CAMEL.to(LOWER_CAMEL, name);
 	}
 
 	private String determineTypeName(Symbol symbol) {
@@ -342,19 +342,10 @@ public class BasicParserCodeGenerator extends AbstractFreeMarkerCodeGenerator<Ba
 		for (int i = 0; i < production.getRhs().size(); i++) {
 			Symbol symbol = production.getRhs().get(i);
 			if (symbol.isTerminal()) {
-				String rhsName = production.getRhsNames().get(i);
-				return upperUnderscoreToLowerCamel(rhsName != null ? rhsName : symbol.getName());
+				return determineParamName(symbol, production.getRhsNames().get(i));
 			}
 		}
-		return production.getRhsNames().get(0) + "Node.getToken()";
-	}
-
-	private static String upperCamelToLowerCamel(String name) {
-		return UPPER_CAMEL.to(LOWER_CAMEL, name);
-	}
-
-	private static String upperUnderscoreToLowerCamel(String name) {
-		return UPPER_UNDERSCORE.to(LOWER_CAMEL, name);
+		return determineParamName(production.getRhs().get(0), production.getRhsNames().get(0)) + ".getToken()";
 	}
 
 	private static String toUpperCamel(String name) {
