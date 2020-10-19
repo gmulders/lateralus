@@ -10,11 +10,10 @@ import io.lateralus.parsergenerator.core.definition.State;
 import io.lateralus.parsergenerator.core.definition.closer.ChenxCloser;
 import io.lateralus.parsergenerator.core.definition.closer.Closer;
 import io.lateralus.parsergenerator.core.grammar.Grammar;
-import io.lateralus.parsergenerator.core.grammar.GrammarException;
 import io.lateralus.parsergenerator.core.grammar.Symbol;
 import io.lateralus.parsergenerator.core.grammar.Terminal;
-import io.lateralus.parsergenerator.core.parser.GrammarParser;
-import io.lateralus.parsergenerator.core.parser.GrammarParserException;
+import io.lateralus.parsergenerator.parser.GrammarParser;
+import io.lateralus.parsergenerator.parser.GrammarParserException;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -24,7 +23,7 @@ import java.util.List;
 
 public class Main {
 
-	public static void main(String[] args) throws GrammarParserException, GrammarException, CodeGenerationException, ParserDefinitionException {
+	public static void main(String[] args) throws GrammarParserException, CodeGenerationException, ParserDefinitionException {
 
 		// https://zaa.ch/jison/try/usf/index.html
 		// %%
@@ -197,9 +196,7 @@ public class Main {
 //				"F -> left E right | id";
 
 		// First parse the input grammar into an internal representation
-		Grammar grammar = GrammarParser
-				.builderFrom(grammarString)
-				.build();
+		Grammar grammar = GrammarParser.from(grammarString);
 
 //		Closer closer = new KnuthCloser(grammar);
 		Closer closer = ChenxCloser.builder(grammar).build();
@@ -218,7 +215,7 @@ public class Main {
 					System.out.println("=============== " + f.getName() + " ===============");
 					System.out.println(f.getContents());
 					try {
-						Path path = Path.of("src/test-out/java/", f.getName()).toAbsolutePath();
+						Path path = Path.of("parsergenerator/main/src/test-out/java/", f.getName()).toAbsolutePath();
 						Files.createDirectories(path.getParent());
 						Files.write(path, f.getContents().getBytes(StandardCharsets.UTF_8));
 					} catch (IOException e) {

@@ -42,6 +42,7 @@
 		<module>lexergenerator/lexergenerator-maven-plugin</module>
 		<module>parsergenerator/core</module>
 		<module>parsergenerator/code-generator</module>
+		<module>parsergenerator/parser</module>
 		<module>parsergenerator/main</module>
 	</modules>
 

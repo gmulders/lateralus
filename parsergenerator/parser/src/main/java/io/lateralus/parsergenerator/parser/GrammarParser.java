@@ -1,8 +1,9 @@
-package io.lateralus.parsergenerator.core.parser;
+package io.lateralus.parsergenerator.parser;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import io.lateralus.parsergenerator.core.grammar.Grammar;
+import io.lateralus.parsergenerator.core.grammar.GrammarException;
 import io.lateralus.parsergenerator.core.grammar.NonTerminal;
 import io.lateralus.parsergenerator.core.grammar.Symbol;
 import io.lateralus.parsergenerator.core.grammar.Terminal;
@@ -18,7 +19,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import static io.lateralus.parsergenerator.core.grammar.Terminal.EPSILON;
 
@@ -39,7 +39,7 @@ public class GrammarParser {
 		return matcher.matches();
 	}
 
-	private static Symbol convertToSymbol(String symbol, Set<String> nonTerminals) throws GrammarParserException {
+	private static Symbol convertToSymbol(String symbol, Set<String> nonTerminals) {
 		if (symbol.equals(EPSILON.getName())) {
 			return EPSILON;
 		}
@@ -49,7 +49,7 @@ public class GrammarParser {
 		return new Terminal(symbol);
 	}
 
-	public static Grammar.Builder builderFrom(String grammar) throws GrammarParserException {
+	public static Grammar from(String grammar) throws GrammarParserException {
 		// Note the use of LinkedHashSet to maintain the insertion order.
 		Set<String> nonTerminals = new LinkedHashSet<>();
 		Map<String, List<RhsDef>> productionMap = new HashMap<>();
@@ -92,7 +92,11 @@ public class GrammarParser {
 			}
 		}
 
-		return builder;
+		try {
+			return builder.build();
+		} catch (GrammarException e) {
+			throw new GrammarParserException(e.getMessage(), e);
+		}
 	}
 
 	private static RhsDef parseRhsDef(String rhs) throws GrammarParserException {
@@ -101,9 +105,7 @@ public class GrammarParser {
 			throw new GrammarParserException(EXPECTED_SYNTAX);
 		}
 
-		List<String> symbolsDefs = SYMBOL_SPLITTER.splitToStream(rhsParts.get(0))
-				.map(String::strip)
-				.collect(Collectors.toList());
+		List<String> symbolsDefs = SYMBOL_SPLITTER.splitToList(rhsParts.get(0));
 
 		List<String> symbols = new ArrayList<>();
 		List<String> symbolNames = new ArrayList<>();
