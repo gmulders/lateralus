@@ -5,7 +5,7 @@
 /.settings/
 /bin/
 /build/
-/parsergenerator/main/src/main/test-lexer/
-/parsergenerator/main/src/main/test-out/
+/parsergenerator/main/src/test-lexer/
+/parsergenerator/main/src/test-out/
 /**/target/
 /**/*.iml

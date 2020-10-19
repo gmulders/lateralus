@@ -3,9 +3,6 @@ package ${parserPackageName};
 import ${lexerPackageName}.Lexer;
 import ${lexerPackageName}.LexerException;
 import ${lexerPackageName}.Token;
-import ${parserPackageName}.Action.Accept;
-import ${parserPackageName}.Action.Reduce;
-import ${parserPackageName}.Action.Shift;
 import ${parserPackageName}.nodes.*;
 
 import java.util.ArrayDeque;
@@ -14,13 +11,15 @@ import java.util.Deque;
 import test.lexer.LexerReaderImpl;
 import test.lexer.SuperLexer;
 import java.io.StringReader;
+import test.parser.visitor.NodeVisitor;
+import test.parser.visitor.VisitingException;
 
 public class Parser {
 
 	/**
 	 * For ease of testing we temporarily have this method.
 	 */
-	public static void main(String[] args) throws ParserException {
+	public static void main(String[] args) throws ParserException, VisitingException {
 		Lexer lexer = new SuperLexer(new LexerReaderImpl(new StringReader("3*3+9")));
 		Parser parser = new Parser(lexer);
 
