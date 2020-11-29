@@ -10,32 +10,19 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>io.lateralus.lexergenerator</groupId>
-    <artifactId>code-generator</artifactId>
-    <name>lexer-generator-code-generator</name>
+    <groupId>io.lateralus.shared</groupId>
+    <artifactId>generator</artifactId>
+    <name>shared-generator</name>
     <packaging>jar</packaging>
 
-    <description>Code generator that can generate source (or binary) code from a lexer definition.</description>
+    <description>Shared code for a generator.</description>
 
     <dependencies>
-        <dependency>
-            <groupId>io.lateralus.lexergenerator</groupId>
-            <artifactId>core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <dependency>
             <groupId>io.lateralus.shared</groupId>
             <artifactId>code-generator</artifactId>
             <version>${project.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.2.0</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
-
 
 </project>

@@ -44,6 +44,8 @@
 		<module>parsergenerator/code-generator</module>
 		<module>parsergenerator/parser</module>
 		<module>parsergenerator/main</module>
+		<module>shared/code-generator</module>
+		<module>shared/generator</module>
 	</modules>
 
 	<build>

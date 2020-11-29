@@ -3,7 +3,8 @@ package io.lateralus.lexergenerator.cli;
 import io.lateralus.lexergenerator.codegenerator.simple.BasicLexerCodeGenerator;
 import io.lateralus.lexergenerator.codegenerator.simple.BasicLexerCodeGenerator.Properties;
 import io.lateralus.lexergenerator.main.LexerGenerator;
-import io.lateralus.lexergenerator.main.LexerGeneratorException;
+import io.lateralus.shared.generator.GeneratorException;
+import io.lateralus.shared.generator.SourceFileSaver;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -44,10 +45,12 @@ public class Main implements Runnable {
 
 	@Override
 	public void run() {
+		SourceFileSaver sourceFileSaver = new SourceFileSaver(targetDirectory, force);
+		LexerGenerator lexerGenerator = new LexerGenerator(sourceFileSaver);
 		try {
-			LexerGenerator.generate(new BasicLexerCodeGenerator(), definitionFile,
-					new Properties(lexerName, packageName), targetDirectory, force);
-		} catch (LexerGeneratorException e) {
+			lexerGenerator.generate(new BasicLexerCodeGenerator(new Properties(lexerName, packageName)), definitionFile);
+			System.out.println("Generated a lexer in '" + targetDirectory + "'.");
+		} catch (GeneratorException e) {
 			System.err.println("Error while generating the lexer: " + e.getMessage());
 		}
 	}

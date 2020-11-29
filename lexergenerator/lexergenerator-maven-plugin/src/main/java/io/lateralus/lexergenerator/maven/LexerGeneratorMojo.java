@@ -3,9 +3,9 @@ package io.lateralus.lexergenerator.maven;
 import io.lateralus.lexergenerator.codegenerator.simple.BasicLexerCodeGenerator;
 import io.lateralus.lexergenerator.codegenerator.simple.BasicLexerCodeGenerator.Properties;
 import io.lateralus.lexergenerator.main.LexerGenerator;
-import io.lateralus.lexergenerator.main.LexerGeneratorException;
+import io.lateralus.shared.generator.GeneratorException;
+import io.lateralus.shared.generator.SourceFileSaver;
 import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -43,18 +43,19 @@ public class LexerGeneratorMojo extends AbstractMojo {
 	/**
 	 * The target directory. Defaults to "${project.build.directory}/generated-sources/lexer".
 	 */
-	@Parameter(property = "target", defaultValue = "${project.build.directory}/generated-sources/lexer", required = true)
+	@Parameter(property = "target", defaultValue = "${project.build.directory}/generated-sources/lexer/java", required = true)
 	private File targetDirectory;
 
 	@Override
-	public void execute() throws MojoExecutionException, MojoFailureException {
+	public void execute() throws MojoFailureException {
 
 		getLog().info("Generating sources from: '" + definitionFile + "' to '" + targetDirectory + "'.");
 
+		SourceFileSaver sourceFileSaver = new SourceFileSaver(targetDirectory.toPath(), overwriteExisting);
+		LexerGenerator lexerGenerator = new LexerGenerator(sourceFileSaver);
 		try {
-			LexerGenerator.generate(new BasicLexerCodeGenerator(), definitionFile,
-					new Properties(lexerName, packageName), targetDirectory.toPath(), overwriteExisting);
-		} catch (LexerGeneratorException e) {
+			lexerGenerator.generate(new BasicLexerCodeGenerator(new Properties(lexerName, packageName)), definitionFile);
+		} catch (GeneratorException e) {
 			throw new MojoFailureException("The lexer could not be generated.", e);
 		}
 	}

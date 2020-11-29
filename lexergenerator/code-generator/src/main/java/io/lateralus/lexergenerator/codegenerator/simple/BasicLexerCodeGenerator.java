@@ -1,16 +1,13 @@
 package io.lateralus.lexergenerator.codegenerator.simple;
 
 import freemarker.cache.ClassTemplateLoader;
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
-import io.lateralus.lexergenerator.codegenerator.CodeGenerationException;
-import io.lateralus.lexergenerator.codegenerator.SourceFile;
 import io.lateralus.lexergenerator.core.automaton.Automaton;
 import io.lateralus.lexergenerator.core.definition.LexerDefinition;
+import io.lateralus.shared.codegenerator.CodeGenerationException;
+import io.lateralus.shared.codegenerator.SourceFile;
+import io.lateralus.shared.codegenerator.freemarker.AbstractFreeMarkerCodeGenerator;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -25,7 +22,7 @@ import java.util.stream.IntStream;
 /**
  * Generates a basic Java lexer from a lexer definition and a configuration.
  */
-public class BasicLexerCodeGenerator extends AbstractFreeMarkerCodeGenerator<BasicLexerCodeGenerator.Properties, String> {
+public class BasicLexerCodeGenerator extends AbstractFreeMarkerCodeGenerator<LexerDefinition> {
 
 	public static class Properties {
 		final private String lexerName;
@@ -46,22 +43,18 @@ public class BasicLexerCodeGenerator extends AbstractFreeMarkerCodeGenerator<Bas
 		}
 	}
 
-	private Properties properties;
+	private final Properties properties;
 
-	public BasicLexerCodeGenerator() {
+	public BasicLexerCodeGenerator(Properties properties) {
 		super(new ClassTemplateLoader(BasicLexerCodeGenerator.class, "/templates"));
-	}
-
-	@Override
-	public void setProperties(Properties properties) {
 		this.properties = properties;
 	}
 
 	@Override
-	public Set<SourceFile<String>> generate(LexerDefinition lexerDefinition) throws CodeGenerationException {
+	public Set<SourceFile> generate(LexerDefinition lexerDefinition) throws CodeGenerationException {
 
 		// Create a Set for the source files.
-		Set<SourceFile<String>> sourceFiles = new HashSet<>();
+		Set<SourceFile> sourceFiles = new HashSet<>();
 
 		sourceFiles.add(createBasicLexer(lexerDefinition));
 		sourceFiles.add(createTokenTypes(lexerDefinition));
@@ -75,7 +68,7 @@ public class BasicLexerCodeGenerator extends AbstractFreeMarkerCodeGenerator<Bas
 		return sourceFiles;
 	}
 
-	private SourceFile<String> createBasicLexer(LexerDefinition lexerDefinition) throws CodeGenerationException {
+	private SourceFile createBasicLexer(LexerDefinition lexerDefinition) throws CodeGenerationException {
 
 		Map<String, Object> model = createBaseModel();
 		model.put("startState", lexerDefinition.getDfa().getStartState());
@@ -158,7 +151,7 @@ public class BasicLexerCodeGenerator extends AbstractFreeMarkerCodeGenerator<Bas
 				.collect(Collectors.joining(", "));
 	}
 
-	private SourceFile<String> createTokenTypes(LexerDefinition lexerDefinition)
+	private SourceFile createTokenTypes(LexerDefinition lexerDefinition)
 			throws CodeGenerationException {
 
 		Map<String, Object> model = createBaseModel();
@@ -178,21 +171,9 @@ public class BasicLexerCodeGenerator extends AbstractFreeMarkerCodeGenerator<Bas
 		return model;
 	}
 
-	private SourceFile<String> createSourceFile(String templateName, String sourceFileName, Map<String, Object> model)
+	private SourceFile createSourceFile(String templateName, String sourceFileName, Map<String, Object> model)
 			throws CodeGenerationException {
-
-		Template template = determineTemplate(templateName);
-
-		StringWriter writer = new StringWriter();
-
-		try {
-			template.process(model, writer);
-		} catch (TemplateException | IOException e) {
-			throw new CodeGenerationException("Could not process the template:", e);
-		}
-
 		String dirName = properties.getPackageName().replaceAll("\\.", File.separator);
-
-		return new SimpleSourceFile(dirName + File.separator + sourceFileName, writer.toString());
+		return createSourceFile(templateName, sourceFileName, dirName, model);
 	}
 }

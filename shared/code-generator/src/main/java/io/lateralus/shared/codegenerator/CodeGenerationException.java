@@ -1,4 +1,4 @@
-package io.lateralus.parsergenerator.codegenerator;
+package io.lateralus.shared.codegenerator;
 
 /**
  * Exception that can be thrown from the code generator.

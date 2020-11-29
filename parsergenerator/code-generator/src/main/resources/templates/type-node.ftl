@@ -28,7 +28,7 @@ public class ${node.className} <#if node.baseClassName??>extends ${node.baseClas
 
 <#if node.isBinaryNode && parameter.name == "lhs" || parameter.name == "rhs">	@Override
 </#if>
-	public ${parameter.type} get${parameter.nameUpperCase}() {
+	public ${parameter.type} get${parameter.name?cap_first}() {
 		return ${parameter.name};
 	}</#list>
 }
