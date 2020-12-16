@@ -13,12 +13,12 @@ import java.util.Set;
 
 public class SourceFileSaver {
 
-	private final Path targetDirectory;
+	private final Path projectDirectory;
 
 	private final boolean overwriteExistingFiles;
 
-	public SourceFileSaver(Path targetDirectory, boolean overwriteExistingFiles) {
-		this.targetDirectory = targetDirectory;
+	public SourceFileSaver(Path projectDirectory, boolean overwriteExistingFiles) {
+		this.projectDirectory = projectDirectory;
 		this.overwriteExistingFiles = overwriteExistingFiles;
 	}
 
@@ -34,7 +34,7 @@ public class SourceFileSaver {
 
 	private void save(final SourceFile sourceFile, final OpenOption[] openOptions) throws GeneratorException {
 
-		final Path path = targetDirectory.resolve(Paths.get(sourceFile.getName()));
+		final Path path = projectDirectory.resolve(Paths.get(sourceFile.getName()));
 
 		try {
 			Files.createDirectories(path.getParent());

@@ -14,16 +14,19 @@ import io.lateralus.parsergenerator.core.grammar.NonTerminal;
 import io.lateralus.parsergenerator.core.grammar.Production;
 import io.lateralus.parsergenerator.core.grammar.Symbol;
 import io.lateralus.parsergenerator.core.grammar.Terminal;
+import io.lateralus.shared.codegenerator.ByteArraySourceFile;
 import io.lateralus.shared.codegenerator.CodeGenerationException;
 import io.lateralus.shared.codegenerator.SourceFile;
 import io.lateralus.shared.codegenerator.freemarker.AbstractFreeMarkerCodeGenerator;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,7 +42,7 @@ import static java.util.function.Predicate.not;
  */
 public class BasicParserCodeGenerator extends AbstractFreeMarkerCodeGenerator<ParserDefinition> {
 
-	private Properties properties;
+	private final Properties properties;
 
 	public BasicParserCodeGenerator(Properties properties) {
 		super(new ClassTemplateLoader(BasicParserCodeGenerator.class, "/templates"));
@@ -54,6 +57,7 @@ public class BasicParserCodeGenerator extends AbstractFreeMarkerCodeGenerator<Pa
 		sourceFiles.addAll(createNodes(parserDefinition));
 		sourceFiles.addAll(createVisitor(parserDefinition));
 		sourceFiles.addAll(createParser(parserDefinition));
+		sourceFiles.addAll(createParserTable(parserDefinition));
 
 		return sourceFiles;
 	}
@@ -63,12 +67,7 @@ public class BasicParserCodeGenerator extends AbstractFreeMarkerCodeGenerator<Pa
 
 		Map<String, Object> model = createBaseModel();
 		result.add(createSourceFile("parser-exception.ftl", "ParserException.java", "", model));
-
-		List<State> stateList = new ArrayList<>(parserDefinition.getCanonicalCollection());
-		Map<State, Integer> stateIntegerMap = new HashMap<>();
-		for (int i = 0; i < stateList.size(); i++) {
-			stateIntegerMap.put(stateList.get(i), i);
-		}
+		result.add(createSourceFile("parser-syntax-exception.ftl", "ParserSyntaxException.java", "", model));
 
 		List<Symbol> symbolList = new ArrayList<>(parserDefinition.getOrderedTerminalList());
 		symbolList.addAll(parserDefinition.getGrammar().getNonTerminals());
@@ -77,6 +76,27 @@ public class BasicParserCodeGenerator extends AbstractFreeMarkerCodeGenerator<Pa
 			symbolIntegerMap.put(symbolList.get(i), i);
 		}
 
+		String productionSizeJava = createProductionSizeJava(parserDefinition.getGrammar().getProductions());
+		model.put("productionSizeJava", productionSizeJava);
+		String productionNonTerminalIdJava = createNonTerminalIdJava(parserDefinition.getGrammar().getProductions(), symbolIntegerMap);
+		model.put("productionNonTerminalIdJava", productionNonTerminalIdJava);
+		model.put("reductionList", createReductions(parserDefinition.getGrammar()));
+		model.put("tableWidth", symbolList.size());
+		result.add(createSourceFile("parser.ftl", "Parser.java", "", model));
+
+		return result;
+	}
+
+	private Set<SourceFile> createParserTable(ParserDefinition parserDefinition) throws CodeGenerationException {
+		List<State> stateList = new ArrayList<>(parserDefinition.getCanonicalCollection());
+		Map<State, Integer> stateIntegerMap = new HashMap<>();
+		for (int i = 0; i < stateList.size(); i++) {
+			stateIntegerMap.put(stateList.get(i), i);
+		}
+
+		List<Symbol> symbolList = new ArrayList<>(parserDefinition.getOrderedTerminalList());
+		symbolList.addAll(parserDefinition.getGrammar().getNonTerminals());
+
 		Map<Production, Integer> productionIntegerMap = new HashMap<>();
 		int productionId = 0;
 		for (Production production : parserDefinition.getGrammar().getProductions()) {
@@ -84,16 +104,58 @@ public class BasicParserCodeGenerator extends AbstractFreeMarkerCodeGenerator<Pa
 			productionId++;
 		}
 
-		String actionTableJava = createActionTableJava(parserDefinition, stateList, stateIntegerMap, symbolList, productionIntegerMap);
-		model.put("actionTableJava", actionTableJava);
-		String productionSizeJava = createProductionSizeJava(parserDefinition.getGrammar().getProductions());
-		model.put("productionSizeJava", productionSizeJava);
-		String productionNonTerminalIdJava = createNonTerminalIdJava(parserDefinition.getGrammar().getProductions(), symbolIntegerMap);
-		model.put("productionNonTerminalIdJava", productionNonTerminalIdJava);
-		model.put("reductionList", createReductions(parserDefinition.getGrammar()));
-		result.add(createSourceFile("parser.ftl", "Parser.java", "", model));
+		Table<State, Terminal, Action> actionTable = parserDefinition.getActionTable();
+		Table<State, NonTerminal, State> gotoTable = parserDefinition.getGotoTable();
 
-		return result;
+		int height = stateList.size();
+		int width = symbolList.size();
+
+		int[] table = new int[height * width];
+
+		for (int i = 0; i < height; i++) {
+			State state = stateList.get(i);
+			for (int j = 0; j < width; j++) {
+				Symbol symbol = symbolList.get(j);
+				int value;
+				if (symbol.isTerminal()) {
+					Action action = actionTable.get(state, symbol);
+					value = determineActionValue(action, productionIntegerMap, stateIntegerMap);
+				} else {
+					State nextState = gotoTable.get(state, symbol);
+					value = determineGotoValue(nextState, stateIntegerMap);
+				}
+				table[i * width + j] = value;
+			}
+		}
+
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		encode(height, baos);
+		encode(width, baos);
+		ArraySplitter arraySplitter = new ArraySplitter(table);
+		while (arraySplitter.hasNext()) {
+			ArraySplitter.Item item = arraySplitter.next();
+			if (item.count == 1) {
+				encode(item.value, baos);
+			} else {
+				baos.write(0x80); // Gaat dit goed?
+				encode(item.count, baos);
+			}
+		}
+
+		String name = properties.generatedResourcesDirectory + File.separator + packageDirectoryName(null) +
+				File.separator + "parser.table";
+		SourceFile sourceFile = new ByteArraySourceFile(name, baos.toByteArray());
+
+		return Set.of(sourceFile);
+	}
+
+	public static void encode(int value, ByteArrayOutputStream out) {
+		value = (value << 1) ^ (value >> 31);
+		if(value > 0x0FFFFFFF || value < 0) out.write((byte)(0x80 | ((value >>> 28))));
+		if(value > 0x1FFFFF || value < 0)   out.write((byte)(0x80 | ((value >>> 21) & 0x7F)));
+		if(value > 0x3FFF || value < 0)     out.write((byte)(0x80 | ((value >>> 14) & 0x7F)));
+		if(value > 0x7F || value < 0)       out.write((byte)(0x80 | ((value >>>  7) & 0x7F)));
+		out.write((byte)(value & 0x7F));
 	}
 
 	private String createProductionSizeJava(Collection<Production> productions) {
@@ -137,6 +199,7 @@ public class BasicParserCodeGenerator extends AbstractFreeMarkerCodeGenerator<Pa
 					State nextState = gotoTable.get(state, symbol);
 					value = determineGotoValue(nextState, stateIntegerMap);
 				}
+//				System.out.println(i + ": " + symbol + " --> " + value);
 				table[i][j] = value;
 			}
 		}
@@ -242,14 +305,22 @@ public class BasicParserCodeGenerator extends AbstractFreeMarkerCodeGenerator<Pa
 		return model;
 	}
 
+	@Override
 	protected SourceFile createSourceFile(String templateName, String sourceFileName, String subPackage,
 			Map<String, Object> model) throws CodeGenerationException {
-		String packageName = properties.getParserPackageName();
-		if (subPackage != null) {
-			packageName += "." + subPackage;
-		}
-		String dirName = packageName.replaceAll("\\.", File.separator);
+		String dirName = properties.generatedSourcesDirectory + File.separator + packageDirectoryName(subPackage);
 		return super.createSourceFile(templateName, sourceFileName, dirName, model);
+	}
+
+	private String packageDirectoryName(String subPackage) {
+		return packageName(subPackage).replaceAll("\\.", File.separator);
+	}
+
+	private String packageName(String subPackage) {
+		if (subPackage == null) {
+			return properties.getParserPackageName();
+		}
+		return properties.getParserPackageName() + "." + subPackage;
 	}
 
 	private Set<Node> createNodeDefinitions(ParserDefinition parserDefinition) {
@@ -336,11 +407,16 @@ public class BasicParserCodeGenerator extends AbstractFreeMarkerCodeGenerator<Pa
 		final private String parserName;
 		final private String parserPackageName;
 		final private String lexerPackageName;
+		final private String generatedSourcesDirectory;
+		final private String generatedResourcesDirectory;
 
-		public Properties(String parserName, String parserPackageName, String lexerPackageName) {
+		public Properties(String parserName, String parserPackageName, String lexerPackageName,
+				String generatedSourcesDirectory, String generatedResourcesDirectory) {
 			this.parserName = parserName;
 			this.parserPackageName = parserPackageName;
 			this.lexerPackageName = lexerPackageName;
+			this.generatedSourcesDirectory = generatedSourcesDirectory;
+			this.generatedResourcesDirectory = generatedResourcesDirectory;
 		}
 
 		public String getParserName() {
@@ -353,6 +429,43 @@ public class BasicParserCodeGenerator extends AbstractFreeMarkerCodeGenerator<Pa
 
 		public String getLexerPackageName() {
 			return lexerPackageName;
+		}
+	}
+
+
+	private static class ArraySplitter implements Iterator<ArraySplitter.Item> {
+		private final int[] array;
+		private int index = 0;
+
+		public ArraySplitter(int[] array) {
+			this.array = array;
+		}
+
+		@Override
+		public boolean hasNext() {
+			return array.length > index;
+		}
+
+		@Override
+		public Item next() {
+			if (array[index] != 0) {
+				return new Item(array[index++], 1);
+			}
+			int start = index;
+			while (array.length > index && array[index] == 0) {
+				index++;
+			}
+			return new Item(0, index - start);
+		}
+
+		private static class Item {
+			private final int value;
+			private final int count;
+
+			private Item(int value, int count) {
+				this.value = value;
+				this.count = count;
+			}
 		}
 	}
 }

@@ -46,6 +46,7 @@
 		<module>parsergenerator/main</module>
 		<module>shared/code-generator</module>
 		<module>shared/generator</module>
+		<module>test</module>
 	</modules>
 
 	<build>

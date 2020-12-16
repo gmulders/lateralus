@@ -7,8 +7,8 @@ import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
 import io.lateralus.shared.codegenerator.CodeGenerationException;
 import io.lateralus.shared.codegenerator.CodeGenerator;
-import io.lateralus.shared.codegenerator.SimpleSourceFile;
 import io.lateralus.shared.codegenerator.SourceFile;
+import io.lateralus.shared.codegenerator.StringSourceFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -52,7 +52,7 @@ public abstract class AbstractFreeMarkerCodeGenerator<S> implements CodeGenerato
 			throw new CodeGenerationException("Could not process the template:", e);
 		}
 
-		return new SimpleSourceFile(dirName + File.separator + sourceFileName, writer.toString());
+		return new StringSourceFile(dirName + File.separator + sourceFileName, writer.toString());
 	}
 
 	protected Template determineTemplate(String templateName) throws CodeGenerationException {

@@ -5,7 +5,10 @@ import ${lexerPackageName}.LexerException;
 import ${lexerPackageName}.Token;
 import ${parserPackageName}.nodes.*;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.Deque;
 
 import test.lexer.LexerReaderImpl;
@@ -16,69 +19,31 @@ import test.parser.visitor.VisitingException;
 
 public class Parser {
 
-	/**
-	 * For ease of testing we temporarily have this method.
-	 */
-	public static void main(String[] args) throws ParserException, VisitingException {
-		Lexer lexer = new SuperLexer(new LexerReaderImpl(new StringReader("3*3+9")));
-		Parser parser = new Parser(lexer);
+	protected static final int[] PRODUCTION_SIZE = new int[] {1,3,1,3,3,1,1};
+	protected static final int[] PRODUCTION_NON_TERMINAL_ID = new int[] {7,7,9,9,8,8,6};
+	protected static final int TABLE_WIDTH = ${tableWidth};
+	protected static final int[] TABLE = readTable();
 
-		Node node = parser.parse();
+	protected final Lexer lexer;
 
-		NodeVisitor<String, VisitingException> visitor = new NodeVisitor<>() {
-			@Override
-			public String visit(PlusNode node) throws VisitingException {
-				return "\"" + node + "\" [label=\"+\"]\n" +
-						"\"" + node + "\" -> {\"" + node.getLhs() + "\" \"" + node.getRhs() + "\"}\n" +
-						node.getLhs().accept(this) +
-						node.getRhs().accept(this);
-			}
-
-			@Override
-			public String visit(ParenNode node) throws VisitingException {
-				return "\"" + node + "\" [label=\"paren\"]\n" +
-						"\"" + node + "\" -> {\"" + node.getExpression() + "\"}\n" +
-						node.getExpression().accept(this);
-			}
-
-			@Override
-			public String visit(NumberNode node) throws VisitingException {
-				return "\"" + node + "\" [label=\"" + node.getNumber().getValue() + "\"]\n";
-			}
-
-			@Override
-			public String visit(ProductNode node) throws VisitingException {
-				return "\"" + node + "\" [label=\"*\"]\n" +
-						"\"" + node + "\" -> {\"" + node.getLhs() + "\" \"" + node.getRhs() + "\"}\n" +
-						node.getLhs().accept(this) +
-						node.getRhs().accept(this);
-
-			}
-		};
-
-		System.out.println(node.accept(visitor));
-	}
-
-	private static final int[] PRODUCTION_SIZE = ${productionSizeJava};
-	private static final int[] PRODUCTION_NON_TERMINAL_ID = ${productionNonTerminalIdJava};
-	private static final int[][] TABLE = ${actionTableJava};
-
-	private final Lexer lexer;
+	protected int state;
+	protected Deque<Integer> stateStack;
+	protected Deque<Object> nodeStack;
 
 	public Parser(Lexer lexer) {
 		this.lexer = lexer;
 	}
 
 	public Node parse() throws ParserException {
-		Deque<Integer> stateStack = new ArrayDeque<>();
+		stateStack = new ArrayDeque<>();
 		stateStack.push(0);
-		Deque<Object> nodeStack = new ArrayDeque<>();
+		nodeStack = new ArrayDeque<>();
 
 		Token token = nextToken();
 
 		while (true) {
-			int state = stateStack.peek();
-			int action = TABLE[state][token.getTokenType().ordinal()];
+			state = stateStack.peek();
+			int action = TABLE[state * TABLE_WIDTH + token.getTokenType().ordinal()];
 
 			if (action == Integer.MIN_VALUE) {
 				return (Node)nodeStack.pop();
@@ -92,11 +57,15 @@ public class Parser {
 				Object[] nodes = popNodes(nodeStack, productionSize);
 				nodeStack.push(reduce(productionId, nodes));
 				state = popStates(stateStack, productionSize);
-				stateStack.push(TABLE[state][PRODUCTION_NON_TERMINAL_ID[productionId]]);
+				stateStack.push(TABLE[state * TABLE_WIDTH + PRODUCTION_NON_TERMINAL_ID[productionId]]);
 			} else {
-				throw new ParserException("");
+				handleSyntaxError(token);
 			}
 		}
+	}
+
+	protected void handleSyntaxError(Token token) throws ParserSyntaxException {
+		throw new ParserSyntaxException("Syntax error", token);
 	}
 
 	private Token nextToken() throws ParserException {
@@ -141,5 +110,47 @@ public class Parser {
 			default:
 				throw new ParserException("Unknown production...");
 		}
+	}
+
+	private static int[] readTable() {
+		try {
+			// Open the parser.table so we can compare the results with the TABLE static property.
+			InputStream is = Parser.class.getResourceAsStream("parser.table");
+			int height = 0;
+			height = readInt(is);
+			int width = readInt(is);
+			int[] table = new int[height * width];
+			int index = 0;
+			while (index < height * width) {
+				int value = readInt(is);
+				if (value == Integer.MAX_VALUE) {
+					int count = readInt(is);
+					Arrays.fill(table, index, index += count, 0);
+				} else {
+					table[index++] = value;
+				}
+			}
+			return table;
+		} catch (IOException e) {
+			throw new IllegalArgumentException("Could not load parser table", e);
+		}
+	}
+
+	protected static int readInt(InputStream in) throws IOException {
+		byte b = (byte)in.read();
+
+		// This is a special value that is never used in a variable length int. Other implementations
+		if (b == (byte) 0x80) {
+			return Integer.MAX_VALUE;
+		}
+
+		int value = b & 0x7F;
+		while ((b & 0x80) != 0) {
+			b = (byte)in.read();
+			value <<= 7;
+			value |= (b & 0x7F);
+		}
+
+		return (value >>> 1) ^ -(value & 1);
 	}
 }

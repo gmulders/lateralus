@@ -7,7 +7,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 /**
  * Straightforward implementation of a {@link SourceFile}.
  */
-public class SimpleSourceFile implements SourceFile {
+public class StringSourceFile implements SourceFile {
 
 	private final String name;
 
@@ -15,11 +15,11 @@ public class SimpleSourceFile implements SourceFile {
 
 	private final Charset encoding;
 
-	public SimpleSourceFile(final String name, final String contents) {
+	public StringSourceFile(final String name, final String contents) {
 		this(name, contents, UTF_8);
 	}
 
-	public SimpleSourceFile(final String name, final String contents, Charset encoding) {
+	public StringSourceFile(final String name, final String contents, Charset encoding) {
 		this.name = name;
 		this.contents = contents;
 		this.encoding = encoding;
