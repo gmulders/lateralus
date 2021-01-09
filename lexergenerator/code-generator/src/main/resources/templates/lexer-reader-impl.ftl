@@ -59,6 +59,7 @@ public class LexerReaderImpl implements LexerReader {
 			case '\n':
 				if (!skipLF) {
 					currentLineNumber++;
+					currentColumnNumber = 1;
 				}
 				skipLF = false;
 				break;
