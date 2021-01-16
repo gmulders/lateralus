@@ -21,6 +21,11 @@ public class LexerException extends Exception {
 		this.lineNumber = currentLineNumber;
 	}
 
+	@Override
+	public String getMessage() {
+		return super.getMessage() + " at " + lineNumber + ":" + columnNumber;
+	}
+
 	public int getLineNumber() {
 		return lineNumber;
 	}
