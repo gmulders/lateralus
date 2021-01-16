@@ -22,7 +22,6 @@ import io.lateralus.shared.codegenerator.freemarker.AbstractFreeMarkerCodeGenera
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -128,6 +127,34 @@ public class BasicParserCodeGenerator extends AbstractFreeMarkerCodeGenerator<Pa
 			}
 		}
 
+		ByteArrayOutputStream baos = encodeTable(table, height, width);
+
+		String name = properties.generatedResourcesDirectory + File.separator + packageDirectoryName(null) +
+				File.separator + "parser.table";
+		SourceFile sourceFile = new ByteArraySourceFile(name, baos.toByteArray());
+
+		return Set.of(sourceFile);
+	}
+
+	private ByteArrayOutputStream encodeTable(int[] table, int height, int width) {
+		// To have a minimal form of compression of the table, we will encode repeating zero's as a special character
+		// followed by the number of repetitions. Skip cells are repeated over entire columns. This is not helping for
+		// the compression, since we store the table per row. Especially for large tables with many zero's the
+		// likelihood that such a column interrupts a range of zero's is large. So storing the skip cells costs per
+		// state 1 byte for the skip value plus 2 bytes to start a new zero range. Especially for large tables with
+		// thousands of states this adds up!
+		// To fix this problem we will set these to 0 and add extra information at the back of the byte array to encode
+		// for these cells, but since entire columns have the same value we only need to store the column numbers.
+		List<Integer> skipColumns = new ArrayList<>();
+		for (int i = 0; i < width; i++) {
+			if (table[i] == 2) {
+				skipColumns.add(i);
+				for (int j = 0; j < height; j++) {
+					table[j * width + i] = 0;
+				}
+			}
+		}
+
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		encode(height, baos);
 		encode(width, baos);
@@ -141,12 +168,11 @@ public class BasicParserCodeGenerator extends AbstractFreeMarkerCodeGenerator<Pa
 				encode(item.count, baos);
 			}
 		}
-
-		String name = properties.generatedResourcesDirectory + File.separator + packageDirectoryName(null) +
-				File.separator + "parser.table";
-		SourceFile sourceFile = new ByteArraySourceFile(name, baos.toByteArray());
-
-		return Set.of(sourceFile);
+		encode(skipColumns.size(), baos);
+		for (int skipColumn : skipColumns) {
+			encode(skipColumn, baos);
+		}
+		return baos;
 	}
 
 	public static void encode(int value, ByteArrayOutputStream out) {
@@ -178,42 +204,42 @@ public class BasicParserCodeGenerator extends AbstractFreeMarkerCodeGenerator<Pa
 		return "new int[] {" + ids + "}";
 	}
 
-	private String createActionTableJava(ParserDefinition parserDefinition, List<State> stateList,
-			Map<State, Integer> stateIntegerMap, List<Symbol> symbolList, Map<Production, Integer> productionIntegerMap)
-			throws CodeGenerationException {
-
-		Table<State, Terminal, Action> actionTable = parserDefinition.getActionTable();
-		Table<State, NonTerminal, State> gotoTable = parserDefinition.getGotoTable();
-
-		int[][] table = new int[stateList.size()][symbolList.size()];
-
-		for (int i = 0; i < stateList.size(); i++) {
-			State state = stateList.get(i);
-			for (int j = 0; j < symbolList.size(); j++) {
-				Symbol symbol = symbolList.get(j);
-				int value;
-				if (symbol.isTerminal()) {
-					Action action = actionTable.get(state, symbol);
-					value = determineActionValue(action, productionIntegerMap, stateIntegerMap);
-				} else {
-					State nextState = gotoTable.get(state, symbol);
-					value = determineGotoValue(nextState, stateIntegerMap);
-				}
-//				System.out.println(i + ": " + symbol + " --> " + value);
-				table[i][j] = value;
-			}
-		}
-
-		StringBuilder builder = new StringBuilder("new int[][] {{");
-		String tableContent = Arrays.stream(table)
-				.map(row -> Arrays.stream(row)
-						.mapToObj(String::valueOf)
-						.collect(Collectors.joining(","))
-				).collect(Collectors.joining("},{"));
-		builder.append(tableContent);
-		builder.append("}}");
-		return builder.toString();
-	}
+//	private String createActionTableJava(ParserDefinition parserDefinition, List<State> stateList,
+//			Map<State, Integer> stateIntegerMap, List<Symbol> symbolList, Map<Production, Integer> productionIntegerMap)
+//			throws CodeGenerationException {
+//
+//		Table<State, Terminal, Action> actionTable = parserDefinition.getActionTable();
+//		Table<State, NonTerminal, State> gotoTable = parserDefinition.getGotoTable();
+//
+//		int[][] table = new int[stateList.size()][symbolList.size()];
+//
+//		for (int i = 0; i < stateList.size(); i++) {
+//			State state = stateList.get(i);
+//			for (int j = 0; j < symbolList.size(); j++) {
+//				Symbol symbol = symbolList.get(j);
+//				int value;
+//				if (symbol.isTerminal()) {
+//					Action action = actionTable.get(state, symbol);
+//					value = determineActionValue(action, productionIntegerMap, stateIntegerMap);
+//				} else {
+//					State nextState = gotoTable.get(state, symbol);
+//					value = determineGotoValue(nextState, stateIntegerMap);
+//				}
+////				System.out.println(i + ": " + symbol + " --> " + value);
+//				table[i][j] = value;
+//			}
+//		}
+//
+//		StringBuilder builder = new StringBuilder("new int[][] {{");
+//		String tableContent = Arrays.stream(table)
+//				.map(row -> Arrays.stream(row)
+//						.mapToObj(String::valueOf)
+//						.collect(Collectors.joining(","))
+//				).collect(Collectors.joining("},{"));
+//		builder.append(tableContent);
+//		builder.append("}}");
+//		return builder.toString();
+//	}
 
 	private int determineGotoValue(State nextState, Map<State, Integer> stateIntegerMap) {
 		if (nextState == null) {
@@ -230,9 +256,11 @@ public class BasicParserCodeGenerator extends AbstractFreeMarkerCodeGenerator<Pa
 		}
 		switch (action.getActionType()) {
 			case ACCEPT:
-				return Integer.MIN_VALUE;
+				return 1;
+			case SKIP:
+				return 2;
 			case REDUCE:
-				return productionIntegerMap.get(action.getProduction()) + 1;
+				return productionIntegerMap.get(action.getProduction()) + 3;
 			case SHIFT:
 				return ~stateIntegerMap.get(action.getState());
 		}

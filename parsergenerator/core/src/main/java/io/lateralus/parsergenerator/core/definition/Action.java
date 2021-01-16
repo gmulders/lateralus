@@ -32,6 +32,10 @@ public class Action {
 		return new Action(ActionType.ACCEPT, null, null);
 	}
 
+	public static Action skip() {
+		return new Action(ActionType.SKIP, null, null);
+	}
+
 	private Action(ActionType actionType, Production production, State state) {
 		this.actionType = actionType;
 		this.production = production;

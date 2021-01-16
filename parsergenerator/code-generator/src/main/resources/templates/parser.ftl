@@ -19,10 +19,13 @@ import test.parser.visitor.VisitingException;
 
 public class Parser {
 
-	protected static final int[] PRODUCTION_SIZE = new int[] {1,3,1,3,3,1,1};
-	protected static final int[] PRODUCTION_NON_TERMINAL_ID = new int[] {7,7,9,9,8,8,6};
+	protected static final int[] PRODUCTION_SIZE = ${productionSizeJava};
+	protected static final int[] PRODUCTION_NON_TERMINAL_ID = ${productionNonTerminalIdJava};
 	protected static final int TABLE_WIDTH = ${tableWidth};
 	protected static final int[] TABLE = readTable();
+	protected static final int PARSER_ACTION_ACCEPT = 1;
+	protected static final int PARSER_ACTION_SKIP = 2;
+	protected static final int ACTION_PRODUCTION_OFFSET = 3;
 
 	protected final Lexer lexer;
 
@@ -45,14 +48,16 @@ public class Parser {
 			state = stateStack.peek();
 			int action = TABLE[state * TABLE_WIDTH + token.getTokenType().ordinal()];
 
-			if (action == Integer.MIN_VALUE) {
+			if (action == PARSER_ACTION_SKIP) {
+				token = nextToken();
+			} else if (action == PARSER_ACTION_ACCEPT) {
 				return (Node)nodeStack.pop();
 			} else if (action < 0) {
 				nodeStack.push(token);
 				stateStack.push(~action);
 				token = nextToken();
 			} else if (action > 0) {
-				int productionId = action - 1;
+				int productionId = action - ACTION_PRODUCTION_OFFSET;
 				int productionSize = PRODUCTION_SIZE[productionId];
 				Object[] nodes = popNodes(nodeStack, productionSize);
 				nodeStack.push(reduce(productionId, nodes));
@@ -123,11 +128,19 @@ public class Parser {
 			int index = 0;
 			while (index < height * width) {
 				int value = readInt(is);
-				if (value == Integer.MAX_VALUE) {
+				if (value == Integer.MIN_VALUE) {
 					int count = readInt(is);
 					Arrays.fill(table, index, index += count, 0);
 				} else {
 					table[index++] = value;
+				}
+			}
+			// Read the number of skip columns.
+			int count = readInt(is);
+			for (int i = 0; i < count; i++) {
+				int column = readInt(is);
+				for (int row = 0; row < height; row++) {
+					table[row * width + column] = PARSER_ACTION_SKIP;
 				}
 			}
 			return table;
@@ -139,9 +152,9 @@ public class Parser {
 	protected static int readInt(InputStream in) throws IOException {
 		byte b = (byte)in.read();
 
-		// This is a special value that is never used in a variable length int. Other implementations
+		// This is a special value that is never used in a variable length int.
 		if (b == (byte) 0x80) {
-			return Integer.MAX_VALUE;
+			return Integer.MIN_VALUE;
 		}
 
 		int value = b & 0x7F;

@@ -32,7 +32,7 @@ public class ParserDefinitionBuilder {
 		this.closer = closer;
 	}
 
-	public ParserDefinition build(Grammar grammar, List<Terminal> orderedTerminalList)
+	public ParserDefinition build(Grammar grammar, List<Terminal> orderedTerminalList, Set<Terminal> skipTerminals)
 			throws ParserDefinitionException {
 
 		// Take the grammar and determine the canonical collection
@@ -40,12 +40,12 @@ public class ParserDefinitionBuilder {
 
 		// From the canonical collection we create the goto table and the action table.
 		Table<State, NonTerminal, State> gotoTable = buildGotoTable(canonicalCollection);
-		Table<State, Terminal, Action> actionTable = buildActionTable(canonicalCollection);
+		Table<State, Terminal, Action> actionTable = buildActionTable(canonicalCollection, skipTerminals);
 
 		return new ParserDefinition(grammar, canonicalCollection, actionTable, gotoTable, orderedTerminalList);
 	}
 
-	private static Table<State, Terminal, Action> buildActionTable(Set<State> canonicalCollection)
+	private static Table<State, Terminal, Action> buildActionTable(Set<State> canonicalCollection, Set<Terminal> skipTerminals)
 			throws ParserDefinitionException {
 
 		Table<State, Terminal, Action> actionTable = HashBasedTable.create();
@@ -56,6 +56,10 @@ public class ParserDefinitionBuilder {
 					updateActionTable(actionTable, state, (Terminal)symbol,
 							Action.shift(state.getTransitions().get(symbol)));
 				}
+			}
+
+			for (Terminal terminal : skipTerminals) {
+				updateActionTable(actionTable, state, terminal, Action.skip());
 			}
 
 			for (Item item : state.getItems()) {
