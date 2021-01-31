@@ -1,8 +1,10 @@
 package io.lateralus.lexergenerator.core;
 
 import io.lateralus.lexergenerator.core.definition.LexerDefinition;
-import io.lateralus.lexergenerator.core.definition.builder.LexerDefinitionBuilder;
+import io.lateralus.lexergenerator.core.definition.LexerDefinitionBuilder;
+import io.lateralus.lexergenerator.core.description.LexerDescriptionBuilder;
 import io.lateralus.lexergenerator.core.parser.RegExException;
+import io.lateralus.lexergenerator.core.parser.nodes.LexerDescriptionNode;
 import io.lateralus.lexergenerator.core.testlexer.LexerException;
 import io.lateralus.lexergenerator.core.testlexer.TestLexer;
 import io.lateralus.lexergenerator.core.testlexer.Token;
@@ -21,12 +23,13 @@ public class SimpleTest {
 	@Test
 	public void testRegex1() throws RegExException, IOException, LexerException {
 
-		LexerDefinition lexerDefinition = new LexerDefinitionBuilder()
+		LexerDescriptionNode lexerDescriptionNode = new LexerDescriptionBuilder()
 				.lexerStartStateName("DEFAULT")
 				.startLexerClass("DEFAULT")
 					.addLexerToken("A", "a*", "DEFAULT")
 				.end()
 				.build();
+		LexerDefinition lexerDefinition = new LexerDefinitionBuilder().build(lexerDescriptionNode);
 
 		Reader reader = new StringReader("aaaa");
 		TestLexer testLexer = new TestLexerBuilder(reader, lexerDefinition).build();
@@ -66,12 +69,13 @@ public class SimpleTest {
 	@Test
 	public void testRegex2() throws RegExException, IOException, LexerException {
 
-		LexerDefinition lexerDefinition = new LexerDefinitionBuilder()
+		LexerDescriptionNode lexerDescriptionNode = new LexerDescriptionBuilder()
 				.lexerStartStateName("DEFAULT")
 				.startLexerClass("DEFAULT")
 					.addLexerToken("A", "a+", "DEFAULT")
 				.end()
 				.build();
+		LexerDefinition lexerDefinition = new LexerDefinitionBuilder().build(lexerDescriptionNode);
 
 		Reader reader = new StringReader("aaaa");
 		TestLexer testLexer = new TestLexerBuilder(reader, lexerDefinition).build();
@@ -111,12 +115,13 @@ public class SimpleTest {
 	@Test
 	public void testRegex3() throws RegExException, IOException, LexerException {
 
-		LexerDefinition lexerDefinition = new LexerDefinitionBuilder()
+		LexerDescriptionNode lexerDescriptionNode = new LexerDescriptionBuilder()
 				.lexerStartStateName("DEFAULT")
 				.startLexerClass("DEFAULT")
 					.addLexerToken("A", "a|b", "DEFAULT")
 				.end()
 				.build();
+		LexerDefinition lexerDefinition = new LexerDefinitionBuilder().build(lexerDescriptionNode);
 
 		Reader reader = new StringReader("abab");
 		TestLexer testLexer = new TestLexerBuilder(reader, lexerDefinition).build();
@@ -139,13 +144,14 @@ public class SimpleTest {
 	@Test
 	public void testRegex4() throws RegExException, IOException, LexerException {
 
-		LexerDefinition lexerDefinition = new LexerDefinitionBuilder()
+		LexerDescriptionNode lexerDescriptionNode = new LexerDescriptionBuilder()
 				.lexerStartStateName("DEFAULT")
 				.startLexerClass("DEFAULT")
 					.addLexerToken("A", "a|b", "DEFAULT")
 					.addLexerToken("C", "c", "DEFAULT")
 				.end()
 				.build();
+		LexerDefinition lexerDefinition = new LexerDefinitionBuilder().build(lexerDescriptionNode);
 
 		Reader reader = new StringReader("abc");
 		TestLexer testLexer = new TestLexerBuilder(reader, lexerDefinition).build();
@@ -175,12 +181,13 @@ public class SimpleTest {
 	@Test
 	public void testRegex5() throws RegExException, IOException, LexerException {
 
-		LexerDefinition lexerDefinition = new LexerDefinitionBuilder()
+		LexerDescriptionNode lexerDescriptionNode = new LexerDescriptionBuilder()
 				.lexerStartStateName("DEFAULT")
 				.startLexerClass("DEFAULT")
 					.addLexerToken("OPTIONALTEST", "ab?a", "DEFAULT")
 				.end()
 				.build();
+		LexerDefinition lexerDefinition = new LexerDefinitionBuilder().build(lexerDescriptionNode);
 
 		Reader reader = new StringReader("abaaab");
 		TestLexer testLexer = new TestLexerBuilder(reader, lexerDefinition).build();
@@ -208,7 +215,7 @@ public class SimpleTest {
 	@Test
 	public void testRegex6() throws RegExException, IOException, LexerException {
 
-		LexerDefinition lexerDefinition = new LexerDefinitionBuilder()
+		LexerDescriptionNode lexerDescriptionNode = new LexerDescriptionBuilder()
 				.lexerStartStateName("DEFAULT")
 				.startLexerClass("DEFAULT")
 					.addLexerToken("INTEGER", "0|[1-9][0-9]*", "DEFAULT")
@@ -217,6 +224,7 @@ public class SimpleTest {
 					.addLexerToken("WHITESPACE", "( |\t)*", "DEFAULT")
 				.end()
 				.build();
+		LexerDefinition lexerDefinition = new LexerDefinitionBuilder().build(lexerDescriptionNode);
 
 		Reader reader = new StringReader("1234567890 {  }");
 		TestLexer testLexer = new TestLexerBuilder(reader, lexerDefinition).build();
@@ -301,13 +309,14 @@ public class SimpleTest {
 
 	@Test
 	public void testRegex8() throws RegExException, IOException, LexerException {
-		LexerDefinition lexerDefinition = new LexerDefinitionBuilder()
+		LexerDescriptionNode lexerDescriptionNode = new LexerDescriptionBuilder()
 				.lexerStartStateName("DEFAULT")
 				.startLexerClass("DEFAULT")
 					.addLexerToken("SHORT", "ab", "DEFAULT")
 					.addLexerToken("LONG", "(ab)+c", "DEFAULT")
 				.end()
 				.build();
+		LexerDefinition lexerDefinition = new LexerDefinitionBuilder().build(lexerDescriptionNode);
 
 		Reader reader = new StringReader("ababab");
 		TestLexer testLexer = new TestLexerBuilder(reader, lexerDefinition).build();

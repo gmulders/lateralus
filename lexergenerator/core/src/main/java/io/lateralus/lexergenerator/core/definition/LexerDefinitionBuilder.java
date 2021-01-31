@@ -18,8 +18,6 @@ import java.util.Set;
 
 /**
  * Builds a lexer definition ({@link LexerDefinition}) given a lexer description node ({@link LexerDescriptionNode}).
- *
- * TODO: Find more suitable name.
  */
 public class LexerDefinitionBuilder {
 
@@ -32,7 +30,7 @@ public class LexerDefinitionBuilder {
 	/**
 	 * Mapping from a lexer class name -> lexer class index
 	 */
-	private Map<String, Integer> lexerClassIndexMap = new HashMap<>();
+	private final Map<String, Integer> lexerClassIndexMap = new HashMap<>();
 
 	/**
 	 * Mapping from lexer class index -> lexer class start state
@@ -40,12 +38,12 @@ public class LexerDefinitionBuilder {
 	 * Note that this lexer state is not an automaton state, but an input that brings the automaton from the start state
 	 * to the start state of the lexer.
 	 */
-	private Map<Integer, Integer> lexerClassStartStateMap = new HashMap<>();
+	private final Map<Integer, Integer> lexerClassStartStateMap = new HashMap<>();
 
 	/**
 	 * The list with all token types.
 	 */
-	private List<LexerDefinition.TokenType> tokenTypeList = new ArrayList<>();
+	private final List<LexerDefinition.TokenType> tokenTypeList = new ArrayList<>();
 
 	/**
 	 * Mapping from an accepting state -> token type.

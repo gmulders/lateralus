@@ -1,4 +1,4 @@
-package io.lateralus.lexergenerator.core.definition.builder;
+package io.lateralus.lexergenerator.core.description;
 
 import io.lateralus.lexergenerator.core.parser.RegExException;
 import io.lateralus.lexergenerator.core.parser.RegExParser;
@@ -10,17 +10,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Builder for lexer class nodes. Can be used from a {@link LexerDefinitionBuilder}.
+ * Builder for lexer class nodes. Can be used from a {@link LexerDescriptionBuilder}.
  */
 public class LexerClassNodeBuilder {
 
-	private final LexerDefinitionBuilder parent;
+	private final LexerDescriptionBuilder parent;
 	private final List<LexerClassNode> lexerClassNodeList;
 	private final String name;
 
-	private List<LexerTokenNode> lexerTokenNodeList;
+	private final List<LexerTokenNode> lexerTokenNodeList;
 
-	public LexerClassNodeBuilder(final LexerDefinitionBuilder parent, final List<LexerClassNode> lexerClassNodeList,
+	public LexerClassNodeBuilder(final LexerDescriptionBuilder parent, final List<LexerClassNode> lexerClassNodeList,
 			final String name) {
 		this.parent = parent;
 		this.lexerClassNodeList = lexerClassNodeList;
@@ -53,7 +53,7 @@ public class LexerClassNodeBuilder {
 	 * Ends the current lexer class.
 	 * @return the parent {@link LexerClassNodeBuilder}
 	 */
-	public LexerDefinitionBuilder end() {
+	public LexerDescriptionBuilder end() {
 		final LexerClassNode lexerClassNode = new LexerClassNode();
 		lexerClassNode.setName(name);
 		lexerClassNode.setLexerTokenList(lexerTokenNodeList);
